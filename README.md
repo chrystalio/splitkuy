@@ -14,12 +14,12 @@ flowchart LR
     A -.->|Manual Entry| E
 ```
 
-1. **Upload** — Take a photo of your receipt (or skip for manual entry)
-2. **Review** — AI extracts items and prices. Edit if needed.
-3. **People** — Type names. No accounts, no sign-up.
-4. **Assign** — Tap a person, check off their items. 1 item = 1 person.
-5. **Fees** — Add delivery, tax, discounts. Optional — skip if none apply.
-6. **Results** — Per-person breakdown. Copy summary or share a link.
+1. **Upload** - Take a photo of your receipt (or skip for manual entry)
+2. **Review** - AI extracts items and prices. Edit if needed.
+3. **People** - Type names. No accounts, no sign-up.
+4. **Assign** - Tap a person, check off their items. 1 item = 1 person.
+5. **Fees** - Add delivery, tax, discounts. Optional - skip if none apply.
+6. **Results** - Per-person breakdown. Copy summary or share a link.
 
 ## Tech Stack
 
