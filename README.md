@@ -9,9 +9,11 @@ flowchart LR
     A[Upload Receipt] --> B[Review Items]
     B --> C[Add People]
     C --> D[Assign Items]
-    D --> E[Fees & Discounts]
-    E --> F[Results & Share]
-    A -.->|Manual Entry| E
+    D --> E{Fees?}
+    E -->|Yes| F[Fees & Discounts]
+    E -->|Skip| G[Results & Share]
+    F --> G
+    A -.->|Manual Entry| B
 ```
 
 1. **Upload** - Take a photo of your receipt (or skip for manual entry)
