@@ -2,11 +2,31 @@ import { useNavigate } from "react-router-dom";
 import { useRef, useState } from "react";
 import { Camera, Keyboard, Loader2, ScanLine } from "lucide-react";
 import { useBillStore } from "@/store";
+import type { Fee, Discount } from "@/types";
+
+/** Heuristic: guess split type from fee name */
+function inferSplitType(name: string): "equal" | "proportional" {
+  const lower = name.toLowerCase();
+  // Percentage-based fees → proportional
+  if (
+    lower.includes("tax") ||
+    lower.includes("vat") ||
+    lower.includes("service") ||
+    lower.includes("charge") ||
+    lower.includes("percentage")
+  ) {
+    return "proportional";
+  }
+  // Flat fixed fees → equal
+  return "equal";
+}
 
 export function UploadReceipt() {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const setItems = useBillStore((s) => s.setItems);
+  const setFees = useBillStore((s) => s.setFees);
+  const setDiscounts = useBillStore((s) => s.setDiscounts);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,15 +54,42 @@ export function UploadReceipt() {
       if (!Array.isArray(receipt.items)) {
         throw new Error("Unexpected response format from API");
       }
+
+      // Map items
       const items = (receipt.items ?? []).map(
-        (item: { name: string; price: number; quantity?: number }, idx: number) => ({
-          id: String(idx),
+        (item: { name: string; price: number; quantity?: number }) => ({
+          id: crypto.randomUUID(),
           name: item.name,
           price: item.price,
           quantity: item.quantity ?? 1,
         }),
       );
       setItems(items, receipt.currency);
+
+      // Map fees from API to Fee model
+      // splitType is inferred: proportional for tax/vat/service, equal for flat fees
+      const fees: Fee[] = (receipt.fees ?? []).map(
+        (fee: { name: string; amount: number; type?: string }, idx: number) => ({
+          id: String(idx),
+          name: fee.name,
+          splitType: fee.type === "percentage" ? "proportional" : inferSplitType(fee.name),
+          amount: fee.amount,
+        }),
+      );
+      setFees(fees);
+
+      // Map discounts from API directly
+      const discounts: Discount[] = (receipt.discounts ?? []).map(
+        (disc: { name: string; amount: number; type?: string; appliesTo?: string }, idx: number) => ({
+          id: String(idx),
+          name: disc.name,
+          type: disc.type ?? "flat",
+          appliesTo: disc.appliesTo ?? "subtotal",
+          amount: disc.amount,
+        }),
+      );
+      setDiscounts(discounts);
+
       navigate("/review");
     } catch (err) {
       const message = err instanceof Error ? err.message : "Couldn't read that one. Enter items manually instead?";
@@ -54,6 +101,8 @@ export function UploadReceipt() {
 
   function handleManualEntry() {
     setItems([]);
+    setFees([]);
+    setDiscounts([]);
     navigate("/review");
   }
 
@@ -69,16 +118,37 @@ export function UploadReceipt() {
         </div>
 
         {error && (
-          <div className="animate-scale-in rounded-lg border border-red-200 bg-error-light px-4 py-3 text-sm text-red-700">
+          <div className="animate-scale-in rounded-lg border border-red-200 bg-error-light px-4 py-3 text-sm text-error">
             {error}
           </div>
         )}
 
+        <div className="animate-slide-up grid grid-cols-2 gap-3" style={{ animationDelay: "60ms" }}>
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="flex flex-col items-center gap-2 rounded-2xl border-2 border-dashed border-border bg-surface px-6 py-8 text-text-secondary transition-all duration-200 hover:border-primary hover:bg-primary/5 active:scale-[0.97]"
+          >
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-light">
+              <Camera className="h-6 w-6 text-primary" />
+            </div>
+            <span className="text-sm font-semibold">Take photo</span>
+          </button>
+
+          <button
+            onClick={handleManualEntry}
+            className="flex flex-col items-center gap-2 rounded-2xl border-2 border-dashed border-border bg-surface px-6 py-8 text-text-secondary transition-all duration-200 hover:border-primary hover:bg-primary/5 active:scale-[0.97]"
+          >
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-light">
+              <Keyboard className="h-6 w-6 text-primary" />
+            </div>
+            <span className="text-sm font-semibold">Type manually</span>
+          </button>
+        </div>
+
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/*"
-          capture="environment"
+          accept="image/jpeg,image/png,image/webp"
           className="hidden"
           onChange={(e) => {
             const file = e.target.files?.[0];
@@ -86,46 +156,16 @@ export function UploadReceipt() {
           }}
         />
 
-        <button
-          onClick={() => fileInputRef.current?.click()}
-          disabled={loading}
-          className="animate-slide-up group shadow-card flex w-full flex-col items-center justify-center gap-4 rounded-xl border border-border bg-surface px-6 py-10 transition-all duration-200 hover:shadow-card-hover hover:border-primary/30 active:scale-[0.99] disabled:opacity-50"
-          style={{ animationDelay: "0.1s", animationFillMode: "both" }}
-        >
-          {loading ? (
-            <div className="relative">
-              <Loader2 className="h-10 w-10 animate-spin text-primary" />
-            </div>
-          ) : (
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary-light transition-transform duration-200 group-hover:scale-110 group-hover:shadow-sm">
-              <Camera className="h-7 w-7 text-primary" />
-            </div>
-          )}
-          <div>
-            <span className="block text-base font-semibold text-text">
-              {loading ? "Reading receipt..." : "Snap a receipt"}
-            </span>
-            {!loading && (
-              <span className="mt-0.5 block text-xs text-text-muted">Photo or gallery</span>
-            )}
+        {loading && (
+          <div className="flex flex-col items-center gap-3 py-4">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-sm text-text-muted">Scanning receipt...</p>
           </div>
-        </button>
+        )}
 
-        <div className="flex items-center gap-3 text-text-muted animate-fade-in" style={{ animationDelay: "0.2s", animationFillMode: "both" }}>
-          <div className="h-px flex-1 bg-border" />
-          <span className="text-xs font-medium">or</span>
-          <div className="h-px flex-1 bg-border" />
-        </div>
-
-        <button
-          onClick={handleManualEntry}
-          disabled={loading}
-          className="animate-slide-up shadow-card flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-surface px-6 py-4 font-semibold text-text-secondary transition-all duration-200 hover:shadow-card-hover hover:border-primary/20 active:scale-[0.99] disabled:opacity-50"
-          style={{ animationDelay: "0.25s", animationFillMode: "both" }}
-        >
-          <Keyboard className="h-5 w-5" />
-          Type it out
-        </button>
+        <p className="text-center text-xs text-text-muted">
+          Powered by Google Gemini
+        </p>
       </div>
     </div>
   );

@@ -1,13 +1,14 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { calculate } from "@/lib/calculation";
-import type { Item, Person, Fee, Assignment, CalculationResult, SharePayload } from "@/types";
+import type { Item, Person, Fee, Discount, Assignment, CalculationResult, SharePayload } from "@/types";
 
 interface BillState {
   items: Item[];
   people: Person[];
   assignments: Assignment[];
   fees: Fee[];
+  discounts: Discount[];
   currency: string;
   result: CalculationResult | null;
 
@@ -26,6 +27,11 @@ interface BillState {
   removeFee: (id: string) => void;
   updateFee: (id: string, patch: Partial<Fee>) => void;
 
+  setDiscounts: (discounts: Discount[]) => void;
+  addDiscount: (discount: Discount) => void;
+  removeDiscount: (id: string) => void;
+  updateDiscount: (id: string, patch: Partial<Discount>) => void;
+
   recompute: () => void;
   loadFromShare: (data: SharePayload) => void;
   reset: () => void;
@@ -36,12 +42,13 @@ function uuid(): string {
 }
 
 const initialState = {
-  items: [],
-  people: [],
-  assignments: [],
-  fees: [],
+  items: [] as Item[],
+  people: [] as Person[],
+  assignments: [] as Assignment[],
+  fees: [] as Fee[],
+  discounts: [] as Discount[],
   currency: "USD",
-  result: null,
+  result: null as CalculationResult | null,
 };
 
 export const useBillStore = create<BillState>()(
@@ -52,7 +59,6 @@ export const useBillStore = create<BillState>()(
       set((state) => {
         state.items = items;
         if (currency) state.currency = currency;
-        // Remove assignments for items that no longer exist
         const itemIds = new Set(items.map((i) => i.id));
         state.assignments = state.assignments.filter((a) => itemIds.has(a.itemId));
       }),
@@ -89,20 +95,34 @@ export const useBillStore = create<BillState>()(
 
     toggleAssignment: (itemId, personId) =>
       set((state) => {
-        const existingIdx = state.assignments.findIndex((a) => a.itemId === itemId);
+        const item = state.items.find((i) => i.id === itemId);
+        if (!item) return;
+        const maxQty = item.quantity;
+
+        const existingIdx = state.assignments.findIndex(
+          (a) => a.itemId === itemId && a.personId === personId,
+        );
+
         if (existingIdx !== -1) {
-          const existing = state.assignments[existingIdx];
-          if (existing.personId === personId) {
-            // Toggle off: remove assignment
-            state.assignments.splice(existingIdx, 1);
-          } else {
-            // Reassign to different person
-            existing.personId = personId;
-          }
+          // Toggle OFF: remove this person's assignment entirely
+          state.assignments.splice(existingIdx, 1);
         } else {
-          // New assignment
-          state.assignments.push({ itemId, personId });
+          // ADD new assignment (additive — does NOT overwrite other people's assignments)
+          // Assign the REMAINING unassigned quantity to this person
+          const otherQty = state.assignments
+            .filter((a) => a.itemId === itemId && a.personId !== personId)
+            .reduce((sum, a) => sum + a.quantity, 0);
+          const remainingQty = maxQty - otherQty;
+          if (remainingQty > 0) {
+            state.assignments.push({ itemId, personId, quantity: remainingQty });
+          }
+          // If remainingQty <= 0, item is fully assigned — do nothing
         }
+      }),
+
+    setFees: (fees) =>
+      set((state) => {
+        state.fees = fees;
       }),
 
     addFee: (fee) =>
@@ -123,6 +143,29 @@ export const useBillStore = create<BillState>()(
         }
       }),
 
+    setDiscounts: (discounts) =>
+      set((state) => {
+        state.discounts = discounts;
+      }),
+
+    addDiscount: (discount) =>
+      set((state) => {
+        state.discounts.push(discount);
+      }),
+
+    removeDiscount: (id) =>
+      set((state) => {
+        state.discounts = state.discounts.filter((d) => d.id !== id);
+      }),
+
+    updateDiscount: (id, patch) =>
+      set((state) => {
+        const idx = state.discounts.findIndex((d) => d.id === id);
+        if (idx !== -1) {
+          Object.assign(state.discounts[idx], patch);
+        }
+      }),
+
     recompute: () =>
       set((state) => {
         state.result = calculate(
@@ -130,6 +173,7 @@ export const useBillStore = create<BillState>()(
           state.people,
           state.assignments,
           state.fees,
+          state.discounts,
         );
       }),
 
@@ -139,8 +183,15 @@ export const useBillStore = create<BillState>()(
         state.people = data.people;
         state.assignments = data.assignments;
         state.fees = data.fees;
+        state.discounts = data.discounts ?? [];
         state.currency = data.currency ?? "USD";
-        state.result = calculate(data.items, data.people, data.assignments, data.fees);
+        state.result = calculate(
+          data.items,
+          data.people,
+          data.assignments,
+          data.fees,
+          data.discounts ?? [],
+        );
       }),
 
     reset: () =>

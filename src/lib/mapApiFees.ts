@@ -1,4 +1,4 @@
-import type { Fee } from "@/types";
+import type { Fee, Discount } from "@/types";
 
 interface ApiFee {
   name: string;
@@ -13,38 +13,29 @@ interface ApiDiscount {
   appliesTo: "delivery" | "subtotal";
 }
 
+/**
+ * Maps API fees/discounts to the store Fee and Discount types.
+ * Note: This function is currently unused — fees come from the receipt
+ * parsing in UploadReceipt.tsx directly. Kept for potential future use.
+ */
 export function mapApiFeesToStore(
   fees: ApiFee[],
   discounts: ApiDiscount[],
-): Fee[] {
-  const result: Fee[] = [];
+): { fees: Fee[]; discounts: Discount[] } {
+  const mappedFees: Fee[] = fees.map((f) => ({
+    id: crypto.randomUUID(),
+    name: f.name,
+    splitType: f.type === "percentage" ? "proportional" : "equal",
+    amount: f.amount,
+  }));
 
-  for (const fee of fees) {
-    result.push({
-      id: crypto.randomUUID(),
-      name: fee.name,
-      type: fee.type === "percentage" ? "proportional" : "flat_equal",
-      amount: fee.amount,
-    });
-  }
+  const mappedDiscounts: Discount[] = discounts.map((d) => ({
+    id: crypto.randomUUID(),
+    name: d.name,
+    type: d.type,
+    appliesTo: d.appliesTo,
+    amount: d.amount,
+  }));
 
-  for (const disc of discounts) {
-    if (disc.appliesTo === "delivery") {
-      result.push({
-        id: crypto.randomUUID(),
-        name: disc.name,
-        type: "flat_equal",
-        amount: -disc.amount,
-      });
-    } else {
-      result.push({
-        id: crypto.randomUUID(),
-        name: disc.name,
-        type: "flat_discount",
-        amount: disc.amount,
-      });
-    }
-  }
-
-  return result;
+  return { fees: mappedFees, discounts: mappedDiscounts };
 }
