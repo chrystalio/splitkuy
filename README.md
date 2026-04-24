@@ -25,8 +25,8 @@ flowchart LR
 
 ## Tech Stack
 
-- **Framework:** Next.js (App Router) + TypeScript
-- **Styling:** Tailwind CSS
+- **Framework:** Vite + React 19 + TypeScript
+- **Styling:** Tailwind CSS 4
 - **State:** Zustand
 - **AI:** Google Gemini 1.5 Flash (receipt OCR)
 
