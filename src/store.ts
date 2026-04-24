@@ -95,16 +95,28 @@ export const useBillStore = create<BillState>()(
 
     toggleAssignment: (itemId, personId) =>
       set((state) => {
-        const existingIdx = state.assignments.findIndex((a) => a.itemId === itemId);
+        const item = state.items.find((i) => i.id === itemId);
+        if (!item) return;
+        const maxQty = item.quantity;
+
+        const existingIdx = state.assignments.findIndex(
+          (a) => a.itemId === itemId && a.personId === personId,
+        );
+
         if (existingIdx !== -1) {
-          const existing = state.assignments[existingIdx];
-          if (existing.personId === personId) {
-            state.assignments.splice(existingIdx, 1);
-          } else {
-            existing.personId = personId;
-          }
+          // Toggle OFF: remove this person's assignment entirely
+          state.assignments.splice(existingIdx, 1);
         } else {
-          state.assignments.push({ itemId, personId });
+          // ADD new assignment (additive — does NOT overwrite other people's assignments)
+          // Assign the REMAINING unassigned quantity to this person
+          const otherQty = state.assignments
+            .filter((a) => a.itemId === itemId && a.personId !== personId)
+            .reduce((sum, a) => sum + a.quantity, 0);
+          const remainingQty = maxQty - otherQty;
+          if (remainingQty > 0) {
+            state.assignments.push({ itemId, personId, quantity: remainingQty });
+          }
+          // If remainingQty <= 0, item is fully assigned — do nothing
         }
       }),
 

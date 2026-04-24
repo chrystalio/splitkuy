@@ -59,14 +59,29 @@ export function calculate(
   }
 
   // Step 2: Compute per-person subtotals
+  // Group assignments by item so we can handle multi-person assignments (qty > 1 split across people)
+  const itemAssignments = new Map<string, Assignment[]>();
+  for (const a of assignments) {
+    const list = itemAssignments.get(a.itemId) ?? [];
+    list.push(a);
+    itemAssignments.set(a.itemId, list);
+  }
+
   const personSubtotals = new Map<string, number>();
   for (const person of people) {
     personSubtotals.set(person.id, 0);
   }
   for (const item of items) {
-    const personId = assignmentMap.get(item.id);
-    if (!personId) continue;
-    personSubtotals.set(personId, (personSubtotals.get(personId) ?? 0) + itemCosts.get(item.id)!);
+    const assigns = itemAssignments.get(item.id) ?? [];
+    const itemCost = itemCosts.get(item.id)!;
+    const perUnitCost = itemCost / item.quantity;
+    for (const a of assigns) {
+      const qty = a.quantity ?? item.quantity;
+      personSubtotals.set(
+        a.personId,
+        (personSubtotals.get(a.personId) ?? 0) + perUnitCost * qty,
+      );
+    }
   }
 
   // Step 3: Separate fees into Rule A (equal) and Rule B (proportional)
@@ -100,8 +115,8 @@ export function calculate(
     }
   }
 
-  const netRuleACents = Math.max(0, totalRuleAFeesCents - totalRuleADiscountsCents);
-  const perPersonEqualCents = Math.floor(netRuleACents / people.length);
+  const netRuleACents = totalRuleAFeesCents - totalRuleADiscountsCents;
+  const perPersonEqualCents = Math.trunc(netRuleACents / people.length);
   const equalRemainderCents = netRuleACents - perPersonEqualCents * people.length;
 
   // Step 6: Compute Rule B — Proportional split
@@ -125,7 +140,7 @@ export function calculate(
     }
   }
 
-  const netRuleBCents = Math.max(0, totalRuleBFeesCents - totalRuleBDiscountsCents);
+  const netRuleBCents = totalRuleBFeesCents - totalRuleBDiscountsCents;
 
   // Step 7: Build per-person results
   const personTotals: PersonTotal[] = [];
@@ -138,11 +153,16 @@ export function calculate(
     // Rule A: equal split share (first person absorbs rounding remainder)
     const equalShareCents = perPersonEqualCents + (i === 0 ? equalRemainderCents : 0);
 
-    // Rule B: proportional share
-    let proportionalShareCents = 0;
-    if (totalSubtotalCents > 0 && netRuleBCents > 0) {
-      proportionalShareCents = Math.round((subtotalCents * netRuleBCents) / totalSubtotalCents);
+    // Rule B: proportional fees ADD to share, proportional discounts REDUCE share
+    let proportionalFeesCents = 0;
+    if (totalSubtotalCents > 0 && totalRuleBFeesCents > 0) {
+      proportionalFeesCents = Math.round((subtotalCents * totalRuleBFeesCents) / totalSubtotalCents);
     }
+    let proportionalDiscountsCents = 0;
+    if (totalSubtotalCents > 0 && totalRuleBDiscountsCents > 0) {
+      proportionalDiscountsCents = Math.round((subtotalCents * totalRuleBDiscountsCents) / totalSubtotalCents);
+    }
+    const proportionalShareCents = proportionalFeesCents - proportionalDiscountsCents;
 
     const totalCents = subtotalCents + equalShareCents + proportionalShareCents;
     grandTotalCents += totalCents;

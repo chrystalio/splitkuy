@@ -12,13 +12,14 @@ const sampleData: SharePayload = {
     { id: "1", name: "Bob" },
   ],
   assignments: [
-    { itemId: "0", personId: "0" },
-    { itemId: "1", personId: "1" },
+    { itemId: "0", personId: "0", quantity: 1 },
+    { itemId: "1", personId: "1", quantity: 2 },
   ],
   fees: [
-    { id: "0", name: "Delivery", type: "flat_equal", amount: 5 },
-    { id: "1", name: "Tax", type: "proportional", amount: 3 },
+    { id: "0", name: "Delivery", splitType: "equal", amount: 5 },
+    { id: "1", name: "Tax", splitType: "proportional", amount: 3 },
   ],
+  discounts: [],
   currency: "USD",
 };
 
@@ -36,8 +37,8 @@ describe("encodeShareUrl / decodeShareUrl", () => {
     expect(decoded!.items[0].name).toBe("Pizza");
     expect(decoded!.items[0].price).toBe(12.5);
     expect(decoded!.people[1].name).toBe("Bob");
-    expect(decoded!.assignments[0].itemId).toBe("0");
-    expect(decoded!.fees[0].type).toBe("flat_equal");
+    expect(decoded!.assignments[0].quantity).toBe(1);
+    expect(decoded!.fees[0].splitType).toBe("equal");
   });
 
   it("produces a reasonably short URL", () => {
@@ -58,8 +59,9 @@ describe("encodeShareUrl / decodeShareUrl", () => {
     const data: SharePayload = {
       items: [{ id: "0", name: "Coffee", price: 4.5, quantity: 1 }],
       people: [{ id: "0", name: "Me" }],
-      assignments: [{ itemId: "0", personId: "0" }],
+      assignments: [{ itemId: "0", personId: "0", quantity: 1 }],
       fees: [],
+      discounts: [],
       currency: "USD",
     };
     const encoded = encodeShareUrl(data);

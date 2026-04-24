@@ -36,6 +36,8 @@ export interface Discount {
 export interface Assignment {
   itemId: string;
   personId: string;
+  /** How many units of this item are assigned to this person. Defaults to the item's quantity. */
+  quantity: number;
 }
 
 export interface PersonTotal {

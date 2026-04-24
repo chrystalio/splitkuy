@@ -15,6 +15,7 @@ export function encodeShareUrl(data: SharePayload): string {
     a: data.assignments.map((a) => [
       itemIds.indexOf(a.itemId),
       personIds.indexOf(a.personId),
+      a.quantity,
     ]),
     f: data.fees.map((fee) => [fee.name, fee.splitType, fee.amount]),
     d: data.discounts.map((disc) => [disc.name, disc.type, disc.appliesTo, disc.amount]),
@@ -48,9 +49,10 @@ export function decodeShareUrl(hash: string): SharePayload | null {
     }));
 
     const assignments = (compact.a ?? []).map(
-      ([itemIdx, personIdx]: [number, number]) => ({
+      ([itemIdx, personIdx, quantity = 1]: [number, number, number?]) => ({
         itemId: String(itemIdx),
         personId: String(personIdx),
+        quantity,
       }),
     );
 

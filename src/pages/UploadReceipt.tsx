@@ -57,8 +57,8 @@ export function UploadReceipt() {
 
       // Map items
       const items = (receipt.items ?? []).map(
-        (item: { name: string; price: number; quantity?: number }, idx: number) => ({
-          id: String(idx),
+        (item: { name: string; price: number; quantity?: number }) => ({
+          id: crypto.randomUUID(),
           name: item.name,
           price: item.price,
           quantity: item.quantity ?? 1,
