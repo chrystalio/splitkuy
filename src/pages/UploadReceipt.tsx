@@ -16,7 +16,7 @@ export function UploadReceipt() {
 
     try {
       const formData = new FormData();
-      formData.append("image", file);
+      formData.append("file", file);
 
       const res = await fetch("/api/parse-receipt", {
         method: "POST",
@@ -35,11 +35,11 @@ export function UploadReceipt() {
         throw new Error("Unexpected response format from API");
       }
       const items = (receipt.items ?? []).map(
-        (item: { name: string; price: number; quantity?: number }, idx: number) => ({
-          id: String(idx),
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity ?? 1,
+        (_item: { name: string; price: number; quantity?: number }, idx: number) => ({
+          id: crypto.randomUUID(),
+          name: _item.name,
+          price: _item.price,
+          quantity: _item.quantity ?? 1,
         }),
       );
       setItems(items, receipt.currency);
@@ -77,7 +77,7 @@ export function UploadReceipt() {
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/*"
+          accept="image/*,application/pdf"
           capture="environment"
           className="hidden"
           onChange={(e) => {
@@ -103,10 +103,10 @@ export function UploadReceipt() {
           )}
           <div>
             <span className="block text-base font-semibold text-text">
-              {loading ? "Reading receipt..." : "Snap a receipt"}
+              {loading ? "Reading receipt..." : "Snap or upload a receipt"}
             </span>
             {!loading && (
-              <span className="mt-0.5 block text-xs text-text-muted">Photo or gallery</span>
+              <span className="mt-0.5 block text-xs text-text-muted">Photo, PDF, or gallery</span>
             )}
           </div>
         </button>
