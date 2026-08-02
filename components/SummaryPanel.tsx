@@ -3,7 +3,7 @@
 
 import { useBill } from '@/hooks/useBill';
 import { CopyButton } from '@/components/CopyButton';
-import { grandTotal } from '@/lib/bill-calculator';
+import { grandTotal, billSubtotal } from '@/lib/bill-calculator';
 import { formatIDR } from '@/lib/format';
 
 function buildWhatsAppText(
@@ -11,7 +11,6 @@ function buildWhatsAppText(
   summaries: ReturnType<typeof useBill>['summaries']
 ): string {
   const gt = grandTotal(bill);
-  const host = bill.people.find((p) => p.isHost);
 
   const parts: string[] = [];
 
@@ -33,13 +32,7 @@ function buildWhatsAppText(
   }
 
   const extras: string[] = [];
-  const subtotal = bill.items.reduce((s, i) => {
-    return (
-      s +
-      i.assignments.reduce((ss, a) => ss + a.qty * i.unitPrice, 0)
-    );
-  }, 0);
-  extras.push(`Subtotal ${formatIDR(subtotal)}`);
+  extras.push(`Subtotal ${formatIDR(billSubtotal(bill.items))}`);
 
   if (bill.discounts.length > 0) {
     const totalDisc = bill.discounts.reduce((s, d) => s + d.amount, 0);
