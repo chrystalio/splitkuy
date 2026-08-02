@@ -3,6 +3,8 @@ import { describe, it, expect } from 'vitest';
 import {
   itemSubtotal,
   personFeeShare,
+  personDiscountShare,
+  personSubtotalShare,
   grandTotal,
   computePerPersonSummary,
 } from './bill-calculator';
@@ -89,6 +91,24 @@ describe('itemSubtotal', () => {
       { personId: 'p2', qty: 1 },
     ]);
     expect(itemSubtotal(item)).toBe(18000);
+  });
+});
+
+describe('personSubtotalShare and proportional shares', () => {
+  it('raw share for 1/3 of Rp 100 discount is fractional; callers must round for display', () => {
+    // Regression guard: SummaryPanel must round these before passing to formatIDR,
+    // or the display shows Indonesian decimal commas (e.g. "33,333").
+    const items = [
+      makeItem('i1', 'Nasi', 1000, 1, [{ personId: 'p1', qty: 1 }]),
+      makeItem('i2', 'Ayam', 1000, 1, [{ personId: 'p2', qty: 1 }]),
+      makeItem('i3', 'Teh', 1000, 1, [{ personId: 'p3', qty: 1 }]),
+    ];
+    const discounts = [{ id: 'd1', label: 'Promo', amount: 100 }];
+    const subtotalShare = personSubtotalShare('p1', items);
+    expect(subtotalShare).toBeCloseTo(1 / 3, 5);
+    const discountShare = personDiscountShare('p1', discounts, items);
+    // Raw share is 33.333... — UI must Math.round() this.
+    expect(Math.round(discountShare)).toBe(33);
   });
 });
 

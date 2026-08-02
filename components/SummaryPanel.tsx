@@ -127,14 +127,15 @@ export function SummaryPanel() {
               <div>Items: {formatIDR(summary.itemsTotal)}</div>
               {summary.discountShare !== 0 && (
                 <div>
-                  Discounts: −{formatIDR(Math.abs(summary.discountShare))}
+                  Discounts: −
+                  {formatIDR(Math.round(Math.abs(summary.discountShare)))}
                 </div>
               )}
               {summary.taxShare !== 0 && (
-                <div>Tax: {formatIDR(summary.taxShare)}</div>
+                <div>Tax: {formatIDR(Math.round(summary.taxShare))}</div>
               )}
               {summary.feeShare !== 0 && (
-                <div>Fees: {formatIDR(summary.feeShare)}</div>
+                <div>Fees: {formatIDR(Math.round(summary.feeShare))}</div>
               )}
             </div>
             {summary.remainderAbsorbed !== 0 && (
