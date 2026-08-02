@@ -12,20 +12,23 @@ interface CopyButtonProps {
 
 export function CopyButton({ text, label = 'Copy', disabled }: CopyButtonProps) {
   const [copied, setCopied] = useState(false);
+  const [failed, setFailed] = useState(false);
 
   async function handleCopy() {
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
+      setFailed(false);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // clipboard unavailable
+      setFailed(true);
+      setTimeout(() => setFailed(false), 2000);
     }
   }
 
   return (
     <Button onClick={handleCopy} disabled={disabled} className="w-full">
-      {copied ? '✓ Copied!' : label}
+      {copied ? '✓ Copied!' : failed ? 'Copy failed' : label}
     </Button>
   );
 }

@@ -19,13 +19,20 @@ function buildWhatsAppText(
     if (!person) continue;
 
     const itemsForPerson = bill.items
-      .filter((item) =>
-        item.assignments.some((a) => a.personId === person.id)
-      )
-      .map((item) => item.name)
+      .map((item) => {
+        const assignment = item.assignments.find(
+          (a) => a.personId === person.id
+        );
+        if (!assignment) return null;
+        const amount = assignment.qty * item.unitPrice;
+        return `${item.name} ${formatIDR(amount)}`;
+      })
+      .filter(Boolean)
       .join(' · ');
 
-    const lines = [`• ${person.name}${person.isHost ? ' (host)' : ''}: ${formatIDR(summary.finalOwed)}`];
+    const lines = [
+      `• ${person.name}${person.isHost ? ' (host)' : ''}: Rp ${formatIDR(summary.finalOwed)}`,
+    ];
     if (itemsForPerson) lines.push(`  ${itemsForPerson}`);
 
     parts.push(lines.join('\n'));
@@ -48,7 +55,7 @@ function buildWhatsAppText(
   }
 
   return [
-    `🍽️ Split bill — total ${formatIDR(gt)}`,
+    `🍽️ Split bill — total Rp ${formatIDR(gt)}`,
     '',
     ...parts,
     '',
@@ -103,6 +110,20 @@ export function SummaryPanel() {
               </span>
             </div>
             <div className="text-xs text-slate-500">{itemsForPerson}</div>
+            <div className="mt-1 space-y-0.5 text-xs text-slate-500">
+              <div>Items: {formatIDR(summary.itemsTotal)}</div>
+              {summary.discountShare !== 0 && (
+                <div>
+                  Discounts: −{formatIDR(Math.abs(summary.discountShare))}
+                </div>
+              )}
+              {summary.taxShare !== 0 && (
+                <div>Tax: {formatIDR(summary.taxShare)}</div>
+              )}
+              {summary.feeShare !== 0 && (
+                <div>Fees: {formatIDR(summary.feeShare)}</div>
+              )}
+            </div>
             {summary.remainderAbsorbed !== 0 && (
               <div className="mt-1 text-xs text-red-500">
                 *Host absorbs {Math.abs(summary.remainderAbsorbed)} stray
