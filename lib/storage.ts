@@ -24,5 +24,9 @@ export function loadBill(): Bill | null {
 }
 
 export function clearBill(): void {
-  localStorage.removeItem(STORAGE_KEY);
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // localStorage unavailable — silently ignore
+  }
 }
