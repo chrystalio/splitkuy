@@ -37,7 +37,7 @@ export function PeopleSection() {
         {bill.people.map((person) => (
           <div
             key={person.id}
-            className="inline-flex items-center rounded-md bg-slate-100 px-2 py-1 text-sm font-medium text-slate-900 dark:bg-slate-700 dark:text-slate-100"
+            className="inline-flex h-7 items-center rounded-md bg-slate-100 pl-2.5 pr-1 gap-1 text-sm font-medium text-slate-900 dark:bg-slate-700 dark:text-slate-100"
           >
             <button
               type="button"
@@ -48,7 +48,7 @@ export function PeopleSection() {
               {person.name}
               {person.isHost && (
                 <span
-                  className="ml-0.5 inline-block h-1.5 w-1.5 rounded-full bg-slate-900 dark:bg-slate-100"
+                  className="inline-block h-1.5 w-1.5 flex-shrink-0 rounded-full bg-green-600 dark:bg-green-400 align-baseline"
                   aria-label="host"
                 />
               )}
@@ -56,7 +56,7 @@ export function PeopleSection() {
             <button
               type="button"
               onClick={() => removePerson(person.id)}
-              className="ml-1 inline-flex min-h-[1.5rem] min-w-[1.5rem] items-center justify-center text-slate-400 hover:text-red-500"
+              className="inline-flex h-5 w-5 flex-shrink-0 items-center justify-center text-slate-400 hover:text-red-500"
               aria-label={`Remove ${person.name}`}
             >
               ×
