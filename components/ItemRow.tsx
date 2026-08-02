@@ -134,9 +134,9 @@ export function ItemRow({ item }: { item: Item }) {
             return (
               <div
                 key={person.id}
-                className="mb-1 flex items-center justify-between rounded bg-blue-50 px-2 py-1 dark:bg-blue-950"
+                className="mb-1 flex items-center justify-between rounded bg-slate-50 px-2 py-1 dark:bg-slate-800"
               >
-                <span className="text-xs font-medium text-blue-700 dark:text-blue-300">
+                <span className="text-xs font-medium text-slate-900 dark:text-slate-100">
                   {person.name}
                 </span>
                 <NumberStepper

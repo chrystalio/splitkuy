@@ -25,7 +25,7 @@ export function Accordion({
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => setOpen(!open)}
-        className="flex w-full items-center justify-between px-3 py-2 text-left text-sm font-medium rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+        className="flex w-full items-center justify-between px-3 py-2 text-left text-sm font-medium rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 dark:focus-visible:ring-slate-100"
       >
         <span>{title}</span>
         <div className="flex items-center gap-2">

@@ -5,7 +5,7 @@
  * Input: 125000 → Output: "125.000"
  */
 export function formatIDR(amount: number): string {
-  return amount.toLocaleString('id-ID'); // Indonesian locale uses . as thousand separator
+  return `Rp ${amount.toLocaleString('id-ID')}`;
 }
 
 /**
