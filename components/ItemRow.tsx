@@ -24,12 +24,23 @@ export function ItemRow({ item }: { item: Item }) {
 
   const subtotal = itemSubtotal(item);
 
+  const validPrice =
+    Number.isFinite(Number(editPrice)) && Number(editPrice) > 0;
+  const saveDisabled = !editName.trim() || !validPrice;
+
+  function setQty(v: number) {
+    const allocated = Object.values(editAssignments).reduce((s, n) => s + n, 0);
+    setEditQty(Math.max(allocated, v));
+  }
+
   function saveEdits() {
     const unitPrice = parseInt(editPrice, 10);
-    if (!Number.isFinite(unitPrice)) return;
+    if (!Number.isFinite(unitPrice) || unitPrice <= 0) return;
+    if (!editName.trim()) return;
 
+    const liveIds = new Set(bill.people.map((p) => p.id));
     const assignments = Object.entries(editAssignments)
-      .filter(([, qty]) => qty > 0)
+      .filter(([personId, qty]) => qty > 0 && liveIds.has(personId))
       .map(([personId, qty]) => ({ personId, qty }));
 
     dispatch({
@@ -38,7 +49,7 @@ export function ItemRow({ item }: { item: Item }) {
         ...item,
         name: editName.trim(),
         unitPrice,
-        quantity: editQty,
+        quantity: Math.max(1, editQty),
         assignments,
       },
     });
@@ -73,6 +84,7 @@ export function ItemRow({ item }: { item: Item }) {
     <div className="mb-2 rounded-lg border border-slate-200 bg-white dark:bg-slate-900 dark:border-slate-700">
       <button
         type="button"
+        aria-expanded={expanded}
         onClick={() => setExpanded(!expanded)}
         className="flex w-full items-center justify-between px-3 py-2 text-left"
       >
@@ -109,7 +121,7 @@ export function ItemRow({ item }: { item: Item }) {
 
           <div className="mb-2 flex items-center gap-2">
             <span className="text-xs text-slate-500">Qty:</span>
-            <NumberStepper value={editQty} onChange={setEditQty} min={1} />
+            <NumberStepper value={editQty} onChange={setQty} min={1} />
           </div>
 
           {bill.people.map((person) => {
@@ -139,7 +151,7 @@ export function ItemRow({ item }: { item: Item }) {
           })}
 
           <div className="mt-2 flex gap-2">
-            <Button size="sm" onClick={saveEdits}>
+            <Button size="sm" onClick={saveEdits} disabled={saveDisabled}>
               Save
             </Button>
             <Button size="sm" variant="danger" onClick={deleteItem}>
