@@ -84,9 +84,11 @@ Add to the `scripts` block in `package.json`:
 - [ ] **Step 3: Run test to verify setup**
 
 ```bash
-bun test
+bun run test
 ```
 Expected: "No test files found" (config works, no tests yet)
+
+> **Note:** Use `bun run test` (runs the package.json script, which invokes vitest). `bun test` invokes bun's native test runner, not vitest.
 
 - [ ] **Step 4: Commit**
 
