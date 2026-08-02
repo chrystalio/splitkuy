@@ -22,35 +22,31 @@ export function NumberStepper({
 
   return (
     <div className="flex items-center gap-1">
-      <button
+      <Button
         type="button"
+        variant="secondary"
+        size="sm"
         disabled={!canDecrement}
         onClick={() => canDecrement && onChange(value - 1)}
-        className={[
-          'flex h-7 w-7 items-center justify-center rounded-md border text-sm font-medium',
-          canDecrement
-            ? 'border-slate-200 bg-white hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800'
-            : 'border-slate-100 text-slate-300 cursor-not-allowed dark:border-slate-800',
-        ].join(' ')}
+        aria-label="Decrease"
+        className="h-7 w-7 p-0"
       >
         −
-      </button>
+      </Button>
       <span className="min-w-[2rem] text-center text-sm font-semibold tabular-nums">
         {value}
       </span>
-      <button
+      <Button
         type="button"
+        variant="secondary"
+        size="sm"
         disabled={!canIncrement}
         onClick={() => canIncrement && onChange(value + 1)}
-        className={[
-          'flex h-7 w-7 items-center justify-center rounded-md border text-sm font-medium',
-          canIncrement
-            ? 'border-slate-200 bg-white hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800'
-            : 'border-slate-100 text-slate-300 cursor-not-allowed dark:border-slate-800',
-        ].join(' ')}
+        aria-label="Increase"
+        className="h-7 w-7 p-0"
       >
         +
-      </button>
+      </Button>
     </div>
   );
 }

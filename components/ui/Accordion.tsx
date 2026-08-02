@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, ReactNode } from 'react';
+import { useId, useState, ReactNode } from 'react';
 
 interface AccordionProps {
   title: ReactNode;
@@ -16,13 +16,16 @@ export function Accordion({
   children,
 }: AccordionProps) {
   const [open, setOpen] = useState(defaultOpen);
+  const panelId = useId();
 
   return (
     <div className="rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
       <button
         type="button"
+        aria-expanded={open}
+        aria-controls={panelId}
         onClick={() => setOpen(!open)}
-        className="flex w-full items-center justify-between px-3 py-2 text-left text-sm font-medium"
+        className="flex w-full items-center justify-between px-3 py-2 text-left text-sm font-medium rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
       >
         <span>{title}</span>
         <div className="flex items-center gap-2">
@@ -32,7 +35,15 @@ export function Accordion({
           <span className="text-slate-400">{open ? '▾' : '▸'}</span>
         </div>
       </button>
-      {open && <div className="border-t border-slate-100 px-3 py-2 dark:border-slate-800">{children}</div>}
+      {open && (
+        <div
+          id={panelId}
+          role="region"
+          className="border-t border-slate-100 px-3 py-2 dark:border-slate-800"
+        >
+          {children}
+        </div>
+      )}
     </div>
   );
 }
