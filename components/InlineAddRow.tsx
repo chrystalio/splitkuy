@@ -45,17 +45,20 @@ export function InlineAddRow() {
     }
   }
 
-  const allocated = Object.values(assignments).reduce((s, v) => s + v, 0);
   const parsedPrice = Number(unitPrice);
   const validPrice = Number.isFinite(parsedPrice) && parsedPrice > 0;
+  const liveIds = new Set(bill.people.map((p) => p.id));
+  const liveAllocated = Object.entries(assignments)
+    .filter(([personId, qty]) => qty > 0 && liveIds.has(personId))
+    .reduce((s, [, qty]) => s + qty, 0);
   const canAdd =
-    name.trim() && validPrice && allocated >= 1 && allocated <= quantity;
+    name.trim() && validPrice && liveAllocated >= 1 && liveAllocated <= quantity;
 
   function addItem() {
     if (!canAdd) return;
-    const itemAssignments = Object.entries(assignments).map(
-      ([personId, qty]) => ({ personId, qty })
-    );
+    const itemAssignments = Object.entries(assignments)
+      .filter(([personId, qty]) => qty > 0 && liveIds.has(personId))
+      .map(([personId, qty]) => ({ personId, qty }));
     dispatch({
       type: 'ADD_ITEM',
       payload: {
@@ -145,7 +148,7 @@ export function InlineAddRow() {
                 })}
               </div>
               <div className="mt-1 text-xs text-slate-400">
-                Allocated: {allocated} / {quantity} units
+                Allocated: {liveAllocated} / {quantity} units
               </div>
             </div>
           )}

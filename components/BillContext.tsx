@@ -6,6 +6,7 @@ import {
   useReducer,
   useEffect,
   useMemo,
+  useRef,
 } from 'react';
 import type { Dispatch, ReactNode } from 'react';
 import type { Bill, Person, Item, Discount, Tax, Fee } from '@/lib/types';
@@ -194,12 +195,22 @@ interface BillContextValue {
 const BillContext = createContext<BillContextValue | null>(null);
 
 export function BillProvider({ children }: { children: ReactNode }) {
-  const [bill, dispatch] = useReducer(billReducer, emptyBill(), (init) => {
-    const saved = loadBill();
-    return saved ?? init;
-  });
+  const [bill, dispatch] = useReducer(billReducer, undefined, () => emptyBill());
 
+  // Load saved bill on mount (after hydration)
   useEffect(() => {
+    const saved = loadBill();
+    if (saved) {
+      dispatch({ type: 'LOAD', payload: saved });
+    }
+  }, []);
+
+  const initialMount = useRef(true);
+  useEffect(() => {
+    if (initialMount.current) {
+      initialMount.current = false;
+      return;
+    }
     saveBill(bill);
   }, [bill]);
 
