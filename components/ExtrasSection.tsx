@@ -21,11 +21,15 @@ function ExtraRow({
 }) {
   return (
     <div className="mb-2 flex items-center gap-2">
-      <Input value={label} readOnly className="flex-1 text-sm" />
+      <Input
+        value={label}
+        readOnly
+        className="min-w-0 flex-1 text-sm truncate"
+      />
       <Input
         value={(negative ? '−' : '') + formatIDR(amount)}
         readOnly
-        className="w-24 text-sm text-right"
+        className="w-28 flex-shrink-0 text-sm text-right tabular-nums"
       />
       <button
         type="button"
@@ -105,7 +109,7 @@ function EditableExtraCard({
               if (e.key === 'Enter') submit();
               if (e.key === 'Escape') setAdding(false);
             }}
-            className="flex-1 text-sm"
+            className="min-w-0 flex-1 text-sm"
           />
           <Input
             placeholder="Rp"
@@ -117,7 +121,7 @@ function EditableExtraCard({
               if (e.key === 'Escape') setAdding(false);
             }}
             aria-label="Amount in IDR"
-            className="w-24 text-sm"
+            className="w-28 flex-shrink-0 text-sm tabular-nums"
           />
           <Button size="sm" onClick={submit}>
             ✓
