@@ -37,7 +37,7 @@ export function PeopleSection() {
         {bill.people.map((person) => (
           <div
             key={person.id}
-            className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium bg-slate-100 text-slate-900 dark:bg-slate-700 dark:text-slate-100"
+            className="inline-flex items-center gap-1 rounded-md px-3 py-1 text-sm font-medium bg-slate-100 text-slate-900 dark:bg-slate-700 dark:text-slate-100"
           >
             {person.name}
             <button
