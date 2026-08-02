@@ -31,7 +31,7 @@ function buildWhatsAppText(
       .join(' · ');
 
     const lines = [
-      `• ${person.name}${person.isHost ? ' (host)' : ''}: Rp ${formatIDR(summary.finalOwed)}`,
+      `• ${person.name}${person.isHost ? ' (host)' : ''}: ${formatIDR(summary.finalOwed)}`,
     ];
     if (itemsForPerson) lines.push(`  ${itemsForPerson}`);
 
@@ -55,7 +55,7 @@ function buildWhatsAppText(
   }
 
   return [
-    `🍽️ Split bill — total Rp ${formatIDR(gt)}`,
+    `🍽️ Split bill — total ${formatIDR(gt)}`,
     '',
     ...parts,
     '',
@@ -72,7 +72,7 @@ export function SummaryPanel() {
   return (
     <section className="mb-4">
       <div className="mb-2 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+        <h2 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
           Summary
         </h2>
         <span className="text-sm font-semibold tabular-nums text-slate-700 dark:text-slate-300">
@@ -97,20 +97,20 @@ export function SummaryPanel() {
             className="mb-2 rounded-lg border border-slate-200 bg-white px-3 py-2 dark:bg-slate-900 dark:border-slate-700"
           >
             <div className="mb-1 flex items-center justify-between">
-              <span
-                className={`text-sm font-semibold ${
-                  person.isHost ? 'text-green-700 dark:text-green-300' : 'text-slate-900 dark:text-slate-100'
-                }`}
-              >
+              <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                 {person.name}
-                {person.isHost && ' (host)'}
+                {person.isHost && (
+                  <span className="text-slate-400 dark:text-slate-500 font-medium text-xs">
+                    {' · host'}
+                  </span>
+                )}
               </span>
               <span className="text-sm font-semibold tabular-nums text-slate-900 dark:text-slate-100">
                 {formatIDR(summary.finalOwed)}
               </span>
             </div>
-            <div className="text-xs text-slate-500">{itemsForPerson}</div>
-            <div className="mt-1 space-y-0.5 text-xs text-slate-500">
+            <div className="text-xs text-slate-400 dark:text-slate-500">{itemsForPerson}</div>
+            <div className="mt-1 space-y-0.5 text-xs text-slate-400 dark:text-slate-500">
               <div>Items: {formatIDR(summary.itemsTotal)}</div>
               {summary.discountShare !== 0 && (
                 <div>
@@ -136,7 +136,7 @@ export function SummaryPanel() {
 
       <CopyButton
         text={copyText}
-        label="Copy summary → WhatsApp"
+        label="Copy summary"
         disabled={!hasItems}
       />
     </section>
