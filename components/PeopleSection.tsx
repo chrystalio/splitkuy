@@ -37,13 +37,25 @@ export function PeopleSection() {
         {bill.people.map((person) => (
           <div
             key={person.id}
-            className="inline-flex items-center gap-1 rounded-md px-3 py-1 text-sm font-medium bg-slate-100 text-slate-900 dark:bg-slate-700 dark:text-slate-100"
+            className="inline-flex items-center rounded-md bg-slate-100 px-2 py-1 text-sm font-medium text-slate-900 dark:bg-slate-700 dark:text-slate-100"
           >
-            {person.name}
+            <button
+              type="button"
+              onClick={() => dispatch({ type: 'SET_HOST', payload: { id: person.id } })}
+              className="inline-flex items-center gap-1 text-left hover:opacity-80"
+              aria-label={`Set ${person.name} as host`}
+            >
+              {person.name}
+              {person.isHost && (
+                <span className="text-xs font-normal text-slate-400 dark:text-slate-500">
+                  · host
+                </span>
+              )}
+            </button>
             <button
               type="button"
               onClick={() => removePerson(person.id)}
-              className="ml-1 inline-flex min-h-[1.5rem] min-w-[1.5rem] items-center justify-center text-slate-400 hover:text-slate-600"
+              className="ml-1 inline-flex min-h-[1.5rem] min-w-[1.5rem] items-center justify-center text-slate-400 hover:text-red-500"
               aria-label={`Remove ${person.name}`}
             >
               ×
@@ -55,6 +67,12 @@ export function PeopleSection() {
           <p className="text-sm text-slate-400 dark:text-slate-500">No people yet</p>
         )}
       </div>
+
+      {bill.people.length > 0 && (
+        <p className="mt-1.5 text-xs text-slate-400 dark:text-slate-500">
+          tap a name to set as host
+        </p>
+      )}
 
       <div className="mt-2 flex gap-2">
         <Input
