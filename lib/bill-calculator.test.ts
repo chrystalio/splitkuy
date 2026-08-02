@@ -74,6 +74,10 @@ describe('remainder reconciliation', () => {
     const summaries = computePerPersonSummary(bill);
     const sumFinalOwed = summaries.reduce((s, sm) => s + sm.finalOwed, 0);
     expect(sumFinalOwed).toBe(grandTotal(bill));
+    // No remainder to absorb — every person should have remainderAbsorbed === 0
+    for (const sm of summaries) {
+      expect(sm.remainderAbsorbed).toBe(0);
+    }
   });
 });
 
