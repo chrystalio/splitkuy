@@ -81,12 +81,12 @@ export function InlineAddRow() {
         <button
           type="button"
           onClick={toggleExpanded}
-          className="w-full rounded-lg border-2 border-dashed border-blue-300 bg-blue-50 py-3 text-sm text-blue-600 hover:border-blue-400 hover:bg-blue-100 transition-colors dark:bg-blue-950 dark:border-blue-800 dark:text-blue-400"
+          className="w-full rounded-[10px] border-2 border-dashed border-slate-300 bg-transparent py-3 text-sm text-slate-500 dark:border-slate-600 dark:text-slate-400 hover:border-slate-400 dark:hover:border-slate-500 transition-colors duration-150"
         >
-          + tap to add item
+          + add item
         </button>
       ) : (
-        <div className="rounded-lg border border-slate-200 bg-white p-3 dark:bg-slate-900 dark:border-slate-700">
+        <div className="rounded-[10px] border border-slate-200 bg-white p-3 dark:bg-slate-800 dark:border-slate-700">
           <div className="mb-3 flex gap-2">
             <Input
               placeholder="Item name"
@@ -131,9 +131,9 @@ export function InlineAddRow() {
                   return (
                     <div
                       key={person.id}
-                      className="flex items-center justify-between rounded-md bg-blue-50 px-3 py-1.5 dark:bg-blue-950"
+                      className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 dark:bg-slate-800"
                     >
-                      <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                      <span className="text-sm font-medium text-slate-900 dark:text-slate-100">
                         {person.name}
                       </span>
                       <NumberStepper
