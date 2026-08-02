@@ -71,9 +71,12 @@ export function computePerPersonSummary(
   bill: Bill
 ): PerPersonSummary[] {
   const subtotal = billSubtotal(bill.items);
+
+  let summaries: PerPersonSummary[];
+
   if (subtotal === 0) {
-    // Edge case: no items — everyone owes 0
-    return bill.people.map((p) => ({
+    // Edge case: no items — everyone owes only their even fee share
+    summaries = bill.people.map((p) => ({
       personId: p.id,
       itemsTotal: 0,
       discountShare: 0,
@@ -82,32 +85,32 @@ export function computePerPersonSummary(
       finalOwed: personFeeShare(p.id, bill.fees, bill.people),
       remainderAbsorbed: 0,
     }));
+  } else {
+    summaries = bill.people.map((person) => {
+      const itemsTotal = personItemsTotal(person.id, bill.items);
+      const discountShare = personDiscountShare(
+        person.id,
+        bill.discounts,
+        bill.items
+      );
+      const taxShare = personTaxShare(person.id, bill.taxes, bill.items);
+      const feeShare = personFeeShare(person.id, bill.fees, bill.people);
+
+      const raw =
+        itemsTotal - discountShare + taxShare + feeShare;
+      const finalOwed = Math.round(raw);
+
+      return {
+        personId: person.id,
+        itemsTotal,
+        discountShare,
+        taxShare,
+        feeShare,
+        finalOwed,
+        remainderAbsorbed: 0,
+      };
+    });
   }
-
-  const summaries: PerPersonSummary[] = bill.people.map((person) => {
-    const itemsTotal = personItemsTotal(person.id, bill.items);
-    const discountShare = personDiscountShare(
-      person.id,
-      bill.discounts,
-      bill.items
-    );
-    const taxShare = personTaxShare(person.id, bill.taxes, bill.items);
-    const feeShare = personFeeShare(person.id, bill.fees, bill.people);
-
-    const raw =
-      itemsTotal - discountShare + taxShare + feeShare;
-    const finalOwed = Math.round(raw);
-
-    return {
-      personId: person.id,
-      itemsTotal,
-      discountShare,
-      taxShare,
-      feeShare,
-      finalOwed,
-      remainderAbsorbed: 0,
-    };
-  });
 
   // Remainder reconciliation: sum rounded values, apply discrepancy to host
   const sumRounded = summaries.reduce((s, sm) => s + sm.finalOwed, 0);
@@ -115,11 +118,14 @@ export function computePerPersonSummary(
 
   if (remainder !== 0) {
     const host = bill.people.find((p) => p.isHost);
-    if (host) {
-      const hostSummary = summaries.find((s) => s.personId === host.id);
-      if (hostSummary) {
-        hostSummary.finalOwed += remainder;
-        hostSummary.remainderAbsorbed = remainder;
+    const target = host ?? bill.people[0];
+    if (target) {
+      const targetSummary = summaries.find(
+        (s) => s.personId === target.id
+      );
+      if (targetSummary) {
+        targetSummary.finalOwed += remainder;
+        targetSummary.remainderAbsorbed = remainder;
       }
     }
   }
