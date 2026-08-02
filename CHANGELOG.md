@@ -2,6 +2,16 @@
 
 All notable changes to SplitKuy.
 
+## [Unreleased]
+
+### Features
+
+- **Docker support** — `Dockerfile` + `.dockerignore` for self-hosting. Multi-stage build with `oven/bun:1` builder and `node:22-alpine` runtime, non-root user, HTTP liveness probe via curl. Build: `docker build -t splitkuy .` · Run: `docker run -p 3000:3000 splitkuy`.
+
+### Changed
+
+- `next.config.ts`: added `output: "standalone"` so the build emits a minimal `.next/standalone/` tree (only the runtime + traced deps).
+
 ## [1.1.0] — 2026-08-02
 
 ### Features
