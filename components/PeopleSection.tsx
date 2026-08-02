@@ -37,7 +37,7 @@ export function PeopleSection() {
         {bill.people.map((person) => (
           <div
             key={person.id}
-            className="inline-flex h-7 items-center rounded-md bg-slate-100 pl-2.5 pr-1 gap-1 text-sm font-medium text-slate-900 dark:bg-slate-700 dark:text-slate-100"
+            className="inline-flex h-7 items-center rounded-md bg-slate-100 pl-3 pr-1.5 gap-1.5 text-sm font-medium text-slate-900 dark:bg-slate-700 dark:text-slate-100"
           >
             {person.isHost && (
               <span
