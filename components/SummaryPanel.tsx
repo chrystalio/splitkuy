@@ -3,6 +3,7 @@
 
 import { useBill } from '@/hooks/useBill';
 import { CopyButton } from '@/components/CopyButton';
+import { Button } from '@/components/ui/Button';
 import { grandTotal, billSubtotal } from '@/lib/bill-calculator';
 import { formatIDR } from '@/lib/format';
 
@@ -151,14 +152,15 @@ export function SummaryPanel() {
         label="Copy summary"
         disabled={!hasItems}
       />
-      <button
+      <Button
         type="button"
         onClick={handleReset}
         disabled={isEmpty}
-        className="mt-3 w-full text-xs text-slate-400 hover:text-red-500 dark:text-slate-500 dark:hover:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-slate-400 dark:disabled:hover:text-slate-500 transition-colors duration-150"
+        variant="secondary"
+        className="mt-4 w-full text-slate-500 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400"
       >
         Reset bill
-      </button>
+      </Button>
     </section>
   );
 }

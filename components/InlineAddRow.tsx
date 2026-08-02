@@ -83,7 +83,7 @@ export function InlineAddRow() {
           onClick={toggleExpanded}
           className="w-full rounded-[10px] border-2 border-dashed border-slate-300 bg-transparent py-3 text-sm text-slate-500 dark:border-slate-600 dark:text-slate-400 hover:border-slate-400 dark:hover:border-slate-500 transition-colors duration-150"
         >
-          + add item
+          + Add item
         </button>
       ) : (
         <div className="rounded-[10px] border border-slate-200 bg-white p-3 dark:bg-slate-800 dark:border-slate-700">
