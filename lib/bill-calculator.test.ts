@@ -2,10 +2,6 @@
 import { describe, it, expect } from 'vitest';
 import {
   itemSubtotal,
-  billSubtotal,
-  personItemsTotal,
-  personSubtotalShare,
-  personDiscountShare,
   personFeeShare,
   grandTotal,
   computePerPersonSummary,
