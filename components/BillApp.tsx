@@ -29,6 +29,11 @@ export function BillApp() {
         <ItemList />
         <SummaryPanel />
       </main>
+      <footer className="mx-auto max-w-lg px-5 py-4 text-center">
+        <p className="text-xs text-slate-400 dark:text-slate-500">
+          © {new Date().getFullYear()} SplitKuy
+        </p>
+      </footer>
     </BillProvider>
   );
 }

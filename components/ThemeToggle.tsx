@@ -5,6 +5,8 @@ import { useEffect, useState } from 'react';
 
 type Theme = 'light' | 'dark' | 'system';
 
+const STORAGE_KEY = 'splitkuy_theme';
+
 function getSystemTheme(): 'light' | 'dark' {
   if (typeof window === 'undefined') return 'light';
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -15,23 +17,19 @@ function applyTheme(theme: Theme) {
   document.documentElement.classList.toggle('dark', resolved === 'dark');
 }
 
-const STORAGE_KEY = 'splitkuy_theme';
+// Read localStorage on the server-equivalent path (typeof window guard) so the
+// initial state matches what the FOUC script applied on first paint.
+function getInitialTheme(): Theme {
+  if (typeof window === 'undefined') return 'system';
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved === 'light' || saved === 'dark' || saved === 'system') return saved;
+  return 'system';
+}
 
 export function ThemeToggle() {
-  // Initialize from localStorage or default to 'system'
-  const [theme, setTheme] = useState<Theme>('system');
+  const [theme, setTheme] = useState<Theme>(getInitialTheme);
 
-  useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY) as Theme | null;
-    if (saved === 'light' || saved === 'dark' || saved === 'system') {
-      setTheme(saved);
-      applyTheme(saved);
-    } else {
-      applyTheme('system');
-    }
-  }, []);
-
-  // Apply whenever theme changes
+  // Apply the theme to the DOM and persist on every change.
   useEffect(() => {
     applyTheme(theme);
     localStorage.setItem(STORAGE_KEY, theme);

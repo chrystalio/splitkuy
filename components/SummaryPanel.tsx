@@ -64,10 +64,22 @@ function buildWhatsAppText(
 }
 
 export function SummaryPanel() {
-  const { bill, summaries } = useBill();
+  const { bill, summaries, dispatch } = useBill();
   const gt = grandTotal(bill);
   const copyText = buildWhatsAppText(bill, summaries);
   const hasItems = bill.items.length > 0;
+  const isEmpty =
+    bill.people.length === 0 &&
+    bill.items.length === 0 &&
+    bill.discounts.length === 0 &&
+    bill.taxes.length === 0 &&
+    bill.fees.length === 0;
+
+  function handleReset() {
+    if (isEmpty) return;
+    const ok = window.confirm('Clear the entire bill? This cannot be undone.');
+    if (ok) dispatch({ type: 'RESET' });
+  }
 
   return (
     <section className="mb-4">
@@ -139,6 +151,14 @@ export function SummaryPanel() {
         label="Copy summary"
         disabled={!hasItems}
       />
+      <button
+        type="button"
+        onClick={handleReset}
+        disabled={isEmpty}
+        className="mt-3 w-full text-xs text-slate-400 hover:text-red-500 dark:text-slate-500 dark:hover:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-slate-400 dark:disabled:hover:text-slate-500 transition-colors duration-150"
+      >
+        Reset bill
+      </button>
     </section>
   );
 }
