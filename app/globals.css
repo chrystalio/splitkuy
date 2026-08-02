@@ -1,9 +1,18 @@
 @import "tailwindcss";
 
+/* Use a `.dark` class on <html> instead of OS preference, so the theme toggle works */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
   --bg-app: #fafafa;
+}
+
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --bg-app: #0f172a;
 }
 
 @theme inline {
@@ -11,14 +20,6 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-plus-jakarta-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-    --bg-app: #0f172a;
-  }
 }
 
 body {

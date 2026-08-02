@@ -28,6 +28,14 @@ export default function RootLayout({
       lang="en"
       className={`${plusJakartaSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        {/* FOUC prevention: run before React hydrates so there's no flash of wrong theme */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){var t=localStorage.getItem('splitkuy_theme')||'system';var d=document.documentElement;if(t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme:dark)').matches)){d.classList.add('dark')}})()`,
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
