@@ -47,9 +47,10 @@ export function PeopleSection() {
             >
               {person.name}
               {person.isHost && (
-                <span className="text-xs font-normal text-slate-400 dark:text-slate-500">
-                  · host
-                </span>
+                <span
+                  className="ml-0.5 inline-block h-1.5 w-1.5 rounded-full bg-slate-900 dark:bg-slate-100"
+                  aria-label="host"
+                />
               )}
             </button>
             <button
