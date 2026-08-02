@@ -44,14 +44,12 @@ function EditableExtraCard({
   items,
   onAdd,
   onRemove,
-  color,
   negative = false,
 }: {
   title: string;
   items: { id: string; label: string; amount: number }[];
   onAdd: (label: string, amount: number) => void;
   onRemove: (id: string) => void;
-  color: string;
   negative?: boolean;
 }) {
   const [adding, setAdding] = useState(false);
@@ -73,7 +71,7 @@ function EditableExtraCard({
   return (
     <Accordion
       title={
-        <span style={{ color }} className="font-semibold text-sm">
+        <span className="font-medium text-sm text-slate-900 dark:text-slate-100">
           {title}
         </span>
       }
@@ -132,7 +130,7 @@ function EditableExtraCard({
         <button
           type="button"
           onClick={() => setAdding(true)}
-          className="text-xs text-blue-600 hover:text-blue-700 mt-1"
+          className="text-xs text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 mt-1"
         >
           + add {title.toLowerCase()}
         </button>
@@ -155,7 +153,6 @@ export function ExtrasSection() {
         onRemove={(id) =>
           dispatch({ type: 'REMOVE_DISCOUNT', payload: { id } })
         }
-        color="#dc2626"
         negative
       />
       <EditableExtraCard
@@ -167,7 +164,6 @@ export function ExtrasSection() {
         onRemove={(id) =>
           dispatch({ type: 'REMOVE_TAX', payload: { id } })
         }
-        color="#0f172a"
       />
       <EditableExtraCard
         title="Fees"
@@ -178,7 +174,6 @@ export function ExtrasSection() {
         onRemove={(id) =>
           dispatch({ type: 'REMOVE_FEE', payload: { id } })
         }
-        color="#0369a1"
       />
     </section>
   );
