@@ -46,8 +46,10 @@ export function InlineAddRow() {
   }
 
   const allocated = Object.values(assignments).reduce((s, v) => s + v, 0);
+  const parsedPrice = Number(unitPrice);
+  const validPrice = Number.isFinite(parsedPrice) && parsedPrice > 0;
   const canAdd =
-    name.trim() && unitPrice && allocated >= 1 && allocated <= quantity;
+    name.trim() && validPrice && allocated >= 1 && allocated <= quantity;
 
   function addItem() {
     if (!canAdd) return;
@@ -58,7 +60,7 @@ export function InlineAddRow() {
       type: 'ADD_ITEM',
       payload: {
         name: name.trim(),
-        unitPrice: parseInt(unitPrice, 10),
+        unitPrice: parsedPrice,
         quantity,
         assignments: itemAssignments,
       },
