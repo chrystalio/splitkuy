@@ -19,7 +19,7 @@ export function Accordion({
   const panelId = useId();
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
+    <div className="rounded-[10px] border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
       <button
         type="button"
         aria-expanded={open}
