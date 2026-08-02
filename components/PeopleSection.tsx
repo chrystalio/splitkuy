@@ -9,11 +9,18 @@ import { Button } from '@/components/ui/Button';
 export function PeopleSection() {
   const { bill, dispatch } = useBill();
   const [name, setName] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   function addPerson() {
-    if (!name.trim()) return;
-    dispatch({ type: 'ADD_PERSON', payload: { name: name.trim() } });
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    if (bill.people.some((p) => p.name.toLowerCase() === trimmed.toLowerCase())) {
+      setError(`"${trimmed}" is already added`);
+      return;
+    }
+    dispatch({ type: 'ADD_PERSON', payload: { name: trimmed } });
     setName('');
+    setError(null);
   }
 
   function removePerson(id: string) {
@@ -46,7 +53,7 @@ export function PeopleSection() {
             <button
               type="button"
               onClick={() => removePerson(person.id)}
-              className="ml-1 text-slate-400 hover:text-slate-600"
+              className="ml-1 inline-flex min-h-[1.5rem] min-w-[1.5rem] items-center justify-center text-slate-400 hover:text-slate-600"
               aria-label={`Remove ${person.name}`}
             >
               ×
@@ -63,14 +70,24 @@ export function PeopleSection() {
         <Input
           placeholder="Add person name"
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => {
+            setName(e.target.value);
+            if (error) setError(null);
+          }}
           onKeyDown={(e) => e.key === 'Enter' && addPerson()}
+          aria-invalid={!!error}
+          aria-describedby={error ? 'add-person-error' : undefined}
           className="flex-1"
         />
         <Button onClick={addPerson} disabled={!name.trim()}>
           Add
         </Button>
       </div>
+      {error && (
+        <p id="add-person-error" role="alert" className="mt-1 text-xs text-red-600">
+          {error}
+        </p>
+      )}
     </section>
   );
 }
