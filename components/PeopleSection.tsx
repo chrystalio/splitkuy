@@ -39,19 +39,19 @@ export function PeopleSection() {
             key={person.id}
             className="inline-flex h-7 items-center rounded-md bg-slate-100 pl-2.5 pr-1 gap-1 text-sm font-medium text-slate-900 dark:bg-slate-700 dark:text-slate-100"
           >
+            {person.isHost && (
+              <span
+                className="inline-block h-1.5 w-1.5 flex-shrink-0 rounded-full bg-green-600 dark:bg-green-400"
+                aria-label="host"
+              />
+            )}
             <button
               type="button"
               onClick={() => dispatch({ type: 'SET_HOST', payload: { id: person.id } })}
-              className="inline-flex items-center gap-1 text-left hover:opacity-80"
+              className="text-left hover:opacity-80"
               aria-label={`Set ${person.name} as host`}
             >
               {person.name}
-              {person.isHost && (
-                <span
-                  className="inline-block h-1.5 w-1.5 flex-shrink-0 rounded-full bg-green-600 dark:bg-green-400 align-baseline"
-                  aria-label="host"
-                />
-              )}
             </button>
             <button
               type="button"
