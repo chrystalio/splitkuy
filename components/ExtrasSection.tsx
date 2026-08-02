@@ -12,16 +12,18 @@ function ExtraRow({
   label,
   amount,
   onRemove,
+  negative = false,
 }: {
   label: string;
   amount: number;
   onRemove: () => void;
+  negative?: boolean;
 }) {
   return (
     <div className="mb-2 flex items-center gap-2">
       <Input value={label} readOnly className="flex-1 text-sm" />
       <Input
-        value={formatIDR(amount)}
+        value={(negative ? '−' : '') + formatIDR(amount)}
         readOnly
         className="w-24 text-sm text-right"
       />
@@ -29,6 +31,7 @@ function ExtraRow({
         type="button"
         onClick={onRemove}
         className="text-slate-400 hover:text-red-500 text-sm"
+        aria-label={`Remove ${label}`}
       >
         ×
       </button>
@@ -42,12 +45,14 @@ function EditableExtraCard({
   onAdd,
   onRemove,
   color,
+  negative = false,
 }: {
   title: string;
   items: { id: string; label: string; amount: number }[];
   onAdd: (label: string, amount: number) => void;
   onRemove: (id: string) => void;
   color: string;
+  negative?: boolean;
 }) {
   const [adding, setAdding] = useState(false);
   const [newLabel, setNewLabel] = useState('');
@@ -55,7 +60,9 @@ function EditableExtraCard({
 
   function submit() {
     if (!newLabel.trim() || !newAmount) return;
-    onAdd(newLabel.trim(), parseInt(newAmount, 10));
+    const amount = Number(newAmount);
+    if (!Number.isFinite(amount) || amount <= 0) return;
+    onAdd(newLabel.trim(), amount);
     setNewLabel('');
     setNewAmount('');
     setAdding(false);
@@ -86,6 +93,7 @@ function EditableExtraCard({
           label={item.label}
           amount={item.amount}
           onRemove={() => onRemove(item.id)}
+          negative={negative}
         />
       ))}
 
@@ -95,12 +103,22 @@ function EditableExtraCard({
             placeholder="Label"
             value={newLabel}
             onChange={(e) => setNewLabel(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') submit();
+              if (e.key === 'Escape') setAdding(false);
+            }}
             className="flex-1 text-sm"
           />
           <Input
             placeholder="Rp"
+            inputMode="numeric"
             value={newAmount}
             onChange={(e) => setNewAmount(e.target.value.replace(/\D/g, ''))}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') submit();
+              if (e.key === 'Escape') setAdding(false);
+            }}
+            aria-label="Amount in IDR"
             className="w-24 text-sm"
           />
           <Button size="sm" onClick={submit}>
@@ -138,6 +156,7 @@ export function ExtrasSection() {
           dispatch({ type: 'REMOVE_DISCOUNT', payload: { id } })
         }
         color="#dc2626"
+        negative
       />
       <EditableExtraCard
         title="Taxes"
