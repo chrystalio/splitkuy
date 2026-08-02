@@ -31,10 +31,10 @@ A frictionless, client-side web application designed to help users accurately sp
 
 ### 4.1 Data Entry
 
-* **Participant Management:** The Host can add or remove friend names dynamically.
-* **Item Input:** The Host can input item names, prices, and quantities.
-* **Item Assignment:** Each item must be assignable to a specific participant. A single participant can have multiple items assigned to them.
-* **Additional Costs:** Dedicated input fields for Total Tax, Total Discount, and Flat Fees (e.g., shipping, service charge).
+* **Participant Management:** The Host can add or remove friend names dynamically. Exactly one participant is designated as the Host (the person who paid).
+* **Item Input:** The Host can input item names, unit prices, and a total quantity for the line.
+* **Item Assignment:** Each item has a total quantity (cap) and per-person assignments (qty ≥ 1 per assigned person, sum ≤ total). Multiple participants can share an item — e.g., 2 es teh assigned to Andi (qty 2) and Budi (qty 1) from a qty-3 line. Uneven per-person quantities are supported.
+* **Additional Costs:** All three categories (Discounts, Taxes, Fees) are arrays — multiple entries per category, each optional, each with a label and an amount. Discounts and taxes are applied proportionally to each person's subtotal share; fees are split evenly among all participants.
 
 ### 4.2 Output Generation
 
@@ -92,4 +92,10 @@ Due to proportional percentage math, decimal remainders will occur. The system m
 * Shareable URLs via dynamic routing and a lightweight key-value database.
 * PDF invoice generation and export.
 * Optical Character Recognition (OCR) / Receipt photo uploading.
-* Splitting a single menu item among multiple people.
+* **Fractional split of a single item** (e.g., "Ayam Bakar Rp 50.000, Andi 30% / Budi 70%"). Workaround: enter as two separate line items with the desired amounts. Quantity-based multi-person assignment is in scope.
+
+---
+
+## 8. Reference
+
+Detailed implementation spec (data model, math formulas, component breakdown, validation rules, testing approach): `docs/superpowers/specs/2026-08-02-splitkuy-mvp-design.md`
