@@ -29,27 +29,17 @@ export function PeopleSection() {
 
   return (
     <section className="mb-4">
-      <div className="mb-2 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-          People ({bill.people.length})
-        </h2>
-      </div>
+      <h2 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+        People
+      </h2>
 
       <div className="flex flex-wrap gap-2">
         {bill.people.map((person) => (
           <div
             key={person.id}
-            className={[
-              'inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium',
-              person.isHost
-                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                : 'bg-blue-50 text-blue-700 dark:bg-blue-900 dark:text-blue-200',
-            ].join(' ')}
+            className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium bg-slate-100 text-slate-900 dark:bg-slate-700 dark:text-slate-100"
           >
             {person.name}
-            {person.isHost && (
-              <span className="text-xs opacity-70">(host)</span>
-            )}
             <button
               type="button"
               onClick={() => removePerson(person.id)}
@@ -62,7 +52,7 @@ export function PeopleSection() {
         ))}
 
         {bill.people.length === 0 && (
-          <p className="text-sm text-slate-400">No people yet</p>
+          <p className="text-sm text-slate-400 dark:text-slate-500">No people yet</p>
         )}
       </div>
 
