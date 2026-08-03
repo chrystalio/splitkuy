@@ -3,7 +3,7 @@
 
 import { useBill } from '@/hooks/useBill';
 import { CopyButton } from '@/components/CopyButton';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 import { grandTotal, billSubtotal } from '@/lib/bill-calculator';
 import { formatIDR } from '@/lib/format';
 

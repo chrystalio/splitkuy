@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { useBill } from '@/hooks/useBill';
 import { Input } from '@/components/ui/Input';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 
 export function PeopleSection() {
   const { bill, dispatch } = useBill();

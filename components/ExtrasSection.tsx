@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useBill } from '@/hooks/useBill';
 import { Accordion } from '@/components/ui/Accordion';
 import { Input } from '@/components/ui/Input';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 import { formatIDR } from '@/lib/format';
 
 function ExtraRow({
