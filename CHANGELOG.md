@@ -10,6 +10,11 @@ All notable changes to SplitKuy.
 
 ### Changed
 
+- **UI primitives migrated to shadcn/ui** — Button, Input, Accordion from `@/components/ui/{button,input,accordion}` (Radix-backed). New components added: `label`, `separator`, `tooltip`, `dialog`, `alert-dialog`. Hand-rolled `NumberStepper` preserved but modernized with `cn()` and 44×44px touch targets.
+- **Reset confirmation** — `window.confirm()` replaced by `AlertDialog` with focus trap, keyboard dismissal, and ARIA-correct structure.
+- **ThemeToggle** — HTML `title` attribute replaced by `Tooltip` (Radix-powered).
+- **Styling utilities** — added `lib/utils.ts` (`cn()` = `clsx` + `tailwind-merge`). New deps: `class-variance-authority`, `clsx`, `tailwind-merge`, `tailwindcss-animate`, `@radix-ui/react-{accordion,label,separator,tooltip,dialog,slot}`, `lucide-react`.
+- **CSS variables** — `app/globals.css` now declares shadcn HSL variables (`--background`, `--foreground`, `--primary`, etc.) for the new components. Slate palette and Plus Jakarta Sans retained.
 - `next.config.ts`: added `output: "standalone"` so the build emits a minimal `.next/standalone/` tree (only the runtime + traced deps).
 
 ## [1.1.0] — 2026-08-02
