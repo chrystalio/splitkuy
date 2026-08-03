@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -49,7 +50,9 @@ export default function RootLayout({
             flash of the wrong theme.  Reads the same 'theme' key as ThemeToggle. */}
         <InlineScript html={THEME_SCRIPT} />
       </head>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <TooltipProvider>{children}</TooltipProvider>
+      </body>
     </html>
   );
 }
