@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { useBill } from '@/hooks/useBill';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/Input';
+import { Input } from '@/components/ui/input';
 import { NumberStepper } from '@/components/ui/NumberStepper';
 import { itemSubtotal } from '@/lib/bill-calculator';
 import { formatIDR } from '@/lib/format';

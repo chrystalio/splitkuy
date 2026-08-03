@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { useBill } from '@/hooks/useBill';
-import { Input } from '@/components/ui/Input';
+import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { NumberStepper } from '@/components/ui/NumberStepper';
 
