@@ -1,9 +1,20 @@
 // components/SummaryPanel.tsx
 'use client';
 
+import { useState } from 'react';
 import { useBill } from '@/hooks/useBill';
 import { CopyButton } from '@/components/CopyButton';
 import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { grandTotal, billSubtotal } from '@/lib/bill-calculator';
 import { formatIDR } from '@/lib/format';
 
@@ -75,11 +86,16 @@ export function SummaryPanel() {
     bill.discounts.length === 0 &&
     bill.taxes.length === 0 &&
     bill.fees.length === 0;
+  const [resetOpen, setResetOpen] = useState(false);
 
   function handleReset() {
     if (isEmpty) return;
-    const ok = window.confirm('Clear the entire bill? This cannot be undone.');
-    if (ok) dispatch({ type: 'RESET' });
+    setResetOpen(true);
+  }
+
+  function confirmReset() {
+    dispatch({ type: 'RESET' });
+    setResetOpen(false);
   }
 
   return (
@@ -162,6 +178,23 @@ export function SummaryPanel() {
       >
         Reset bill
       </Button>
+      <AlertDialog open={resetOpen} onOpenChange={setResetOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Reset the entire bill?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This clears all people, items, discounts, taxes, and fees. This
+              cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction variant="destructive" onClick={confirmReset}>
+              Reset
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </section>
   );
 }
