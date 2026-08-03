@@ -18,6 +18,21 @@ export const metadata: Metadata = {
   description: "Mobile-first bill splitting for restaurant receipts",
 };
 
+// Inline script helper — prevents React from treating <script> as a component
+// during the JSX render pass. "type=text/javascript" on server so Next.js emits
+// the script; "type=text/plain" on client so React skips it (it already executed).
+function InlineScript({ html }: { html: string }) {
+  return (
+    <script
+      type={typeof window === 'undefined' ? 'text/javascript' : 'text/plain'}
+      suppressHydrationWarning
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
+  );
+}
+
+const THEME_SCRIPT = `(function(){try{var t=localStorage.getItem('theme');var d=document.documentElement;if(t==='dark'||(t!=='light'&&window.matchMedia('(prefers-color-scheme:dark)').matches)){d.classList.add('dark')}else{d.classList.remove('dark')}}catch(e){}})()`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -30,12 +45,9 @@ export default function RootLayout({
       className={`${plusJakartaSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
-        {/* FOUC prevention: run before React hydrates so there's no flash of wrong theme */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){var t=localStorage.getItem('splitkuy_theme')||'system';var d=document.documentElement;if(t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme:dark)').matches)){d.classList.add('dark')}})()`,
-          }}
-        />
+        {/* FOUC prevention: run synchronously before React hydrates so there is no
+            flash of the wrong theme.  Reads the same 'theme' key as ThemeToggle. */}
+        <InlineScript html={THEME_SCRIPT} />
       </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

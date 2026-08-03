@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 
 type Theme = 'light' | 'dark' | 'system';
 
-const STORAGE_KEY = 'splitkuy_theme';
+const STORAGE_KEY = 'theme';
 
 function getSystemTheme(): 'light' | 'dark' {
   if (typeof window === 'undefined') return 'light';
