@@ -53,7 +53,7 @@ The math is always exact. If a discount or fee doesn't divide evenly across peop
 splitkuy/
 ├── app/
 │   ├── layout.tsx       # Root layout with fonts and metadata
-│   ├── page.tsx         # App entry point
+│   ├── page.tsx         # App entry point (renders BillApp)
 │   └── globals.css      # Tailwind v4 config and CSS variables
 ├── components/          # React components
 │   ├── BillApp.tsx      # Main app container
@@ -66,15 +66,34 @@ splitkuy/
 │   ├── SummaryPanel.tsx
 │   ├── CopyButton.tsx
 │   ├── ThemeToggle.tsx
-│   └── ui/              # Primitives: Accordion, Button, Input, NumberStepper
+│   └── ui/              # shadcn/ui primitives (Radix + cva)
+│       ├── NumberStepper.tsx   # Touch-optimized stepper (in-house)
+│       ├── accordion.tsx
+│       ├── alert-dialog.tsx
+│       ├── button.tsx
+│       ├── dialog.tsx
+│       ├── input.tsx
+│       ├── label.tsx
+│       ├── separator.tsx
+│       └── tooltip.tsx
 ├── hooks/
 │   └── useBill.ts       # Convenience hook over BillContext
 ├── lib/
 │   ├── bill-calculator.ts    # Core math (proportional split, remainder reconciliation)
 │   ├── bill-calculator.test.ts
-│   ├── format.ts            # IDR currency formatter
-│   ├── types.ts             # TypeScript interfaces
-│   └── storage.ts           # localStorage helpers
+│   ├── bill-reducer.ts       # Pure reducer for bill state transitions
+│   ├── bill-reducer.test.ts
+│   ├── format.ts             # IDR currency formatter
+│   ├── format.test.ts
+│   ├── storage.ts            # localStorage helpers
+│   ├── storage.test.ts
+│   ├── types.ts              # TypeScript interfaces
+│   ├── utils.ts              # cn() helper (clsx + tailwind-merge)
+│   ├── utils.test.ts
+│   ├── whatsapp.ts           # Builds the shareable summary text
+│   └── whatsapp.test.ts
+├── components.json           # shadcn/ui configuration
 └── docs/
-    └── PRD.md               # Product requirements document
+    ├── PRD.md                # Product requirements document
+    └── superpowers/          # Design specs and implementation plans
 ```
