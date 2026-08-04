@@ -124,11 +124,11 @@ export function computePerPersonSummary(
         (s) => s.personId === target.id
       );
       if (targetSummary) {
-        targetSummary.finalOwed = Math.max(
-          0,
-          targetSummary.finalOwed + remainder
-        );
-        targetSummary.remainderAbsorbed = remainder < 0 ? remainder : 0;
+        const isGrandTotalNegative = grandTotal(bill) < 0;
+        targetSummary.finalOwed = isGrandTotalNegative
+          ? Math.max(0, targetSummary.finalOwed + remainder)
+          : targetSummary.finalOwed + remainder;
+        targetSummary.remainderAbsorbed = remainder;
       }
     }
   }
