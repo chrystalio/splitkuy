@@ -1,14 +1,22 @@
 // lib/whatsapp.ts
 
-import type { Bill, PerPersonSummary } from './types';
-import { grandTotal, billSubtotal } from './bill-calculator';
+import type { Bill, Item, PerPersonSummary } from './types';
 import { formatIDR } from './format';
+
+/** Raw item subtotal: face value of all items, regardless of assignments. */
+function rawItemSubtotal(items: Item[]): number {
+  return items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
+}
 
 export function buildWhatsAppText(
   bill: Bill,
   summaries: PerPersonSummary[]
 ): string {
-  const gt = grandTotal(bill);
+  const subtotal = rawItemSubtotal(bill.items);
+  const totalDiscounts = bill.discounts.reduce((s, d) => s + d.amount, 0);
+  const totalTaxes = bill.taxes.reduce((s, t) => s + t.amount, 0);
+  const totalFees = bill.fees.reduce((s, f) => s + f.amount, 0);
+  const total = subtotal - totalDiscounts + totalTaxes + totalFees;
 
   const parts: string[] = [];
 
@@ -37,7 +45,7 @@ export function buildWhatsAppText(
   }
 
   const extras: string[] = [];
-  extras.push(`Subtotal ${formatIDR(billSubtotal(bill.items))}`);
+  extras.push(`Subtotal ${formatIDR(subtotal)}`);
 
   if (bill.discounts.length > 0) {
     const totalDisc = bill.discounts.reduce((s, d) => s + d.amount, 0);
@@ -53,7 +61,7 @@ export function buildWhatsAppText(
   }
 
   return [
-    `🍽️ Split bill — total ${formatIDR(gt)}`,
+    `🍽️ Split bill — total ${formatIDR(total)}`,
     '',
     ...parts,
     '',
