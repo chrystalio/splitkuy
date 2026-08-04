@@ -17,6 +17,13 @@ All notable changes to SplitKuy.
 - **CSS variables** — `app/globals.css` now declares shadcn HSL variables (`--background`, `--foreground`, `--primary`, etc.) for the new components. Slate palette and Plus Jakarta Sans retained.
 - `next.config.ts`: added `output: "standalone"` so the build emits a minimal `.next/standalone/` tree (only the runtime + traced deps).
 
+### Fixed
+
+- **finalOwed clamped at 0** — a discount larger than a person's subtotal share no longer produces a negative amount owed. When total discounts exceed subtotal, an amber banner ("Discounts exceed subtotal — amounts clamped at Rp 0") appears above the summary cards.
+- **localStorage load hardened** — `loadBill` now validates the stored shape with `isBill()` instead of trusting a `JSON.parse` cast; corrupt or partial data falls back to a fresh bill instead of throwing.
+- **Dead exports removed** — `parseNumericInput` (format) and `clearBill` (storage) deleted; both were unused.
+- **Reducer and summary text now tested** — `billReducer` extracted to `lib/bill-reducer.ts`; `buildWhatsAppText` extracted to `lib/whatsapp.ts`. Both covered by Vitest (13 reducer tests, 4 whatsapp tests, 10 storage tests, 2 format tests).
+
 ## [1.1.0] — 2026-08-02
 
 ### Features
