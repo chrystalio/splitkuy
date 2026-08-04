@@ -4,11 +4,11 @@ A mobile-first bill splitting web app for restaurant receipts. No accounts, no s
 
 Split the caffeine, not the headache.
 
-- **Proportional math** — discounts and taxes split exactly by each person's share
-- **Per-person quantity** — assign one item to multiple people with quantities
-- **Indonesian Rupiah** — whole numbers, no decimals, stray Rupiahs reconciled to host
-- **WhatsApp-ready** — copy a formatted summary to paste directly into chat
-- **Offline** — everything runs in your browser, state persists in localStorage
+- **Proportional math** - discounts and taxes split exactly by each person's share
+- **Per-person quantity** - assign one item to multiple people with quantities
+- **Indonesian Rupiah** - whole numbers, no decimals, stray Rupiahs reconciled to host
+- **Summary sharing** - copy a formatted breakdown to paste anywhere
+- **Offline** - everything runs in your browser, state persists in localStorage
 
 ## Tech Stack
 
@@ -43,9 +43,9 @@ Open [http://localhost:3000](http://localhost:3000).
 2. Add items and assign each to one or more people with quantities
 3. Add any discounts, taxes, or fees
 4. Review per-person totals in real time
-5. Copy summary and paste into WhatsApp
+5. Copy the summary and share it anywhere
 
-The math is always exact — if a discount or fee doesn't divide evenly across people, the host absorbs the 1–2 Rupiah discrepancy so the breakdown sums to the receipt total.
+The math is always exact. If a discount or fee doesn't divide evenly across people, the host absorbs the 1-2 Rupiah discrepancy so the breakdown sums to the receipt total.
 
 ## Project Structure
 
