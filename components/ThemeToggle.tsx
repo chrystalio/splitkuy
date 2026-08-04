@@ -1,7 +1,7 @@
 // components/ThemeToggle.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 import {
   Tooltip,
   TooltipContent,
@@ -32,8 +32,9 @@ function getInitialTheme(): Theme {
 }
 
 // Render a neutral icon on first paint (identical on server and client) so
-// React 19's element-type hydration check cannot mismatch. After hydration,
-// useEffect sets `mounted=true` and the correct theme icon appears.
+// React 19's element-type hydration check cannot mismatch. useSyncExternalStore
+// flips `mounted` to true after hydration (server snapshot → client snapshot),
+// and the correct theme icon appears without a setState-in-effect.
 function ThemeIcon({ theme, mounted }: { theme: Theme; mounted: boolean }) {
   if (!mounted) {
     return (
@@ -67,10 +68,14 @@ function ThemeIcon({ theme, mounted }: { theme: Theme; mounted: boolean }) {
 
 export function ThemeToggle() {
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
-  const [mounted, setMounted] = useState(false);
+  // false during SSR + initial hydration render, true after hydration.
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
 
   useEffect(() => {
-    setMounted(true);
     applyTheme(theme);
     localStorage.setItem(STORAGE_KEY, theme);
   }, [theme]);
