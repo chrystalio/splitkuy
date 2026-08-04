@@ -4,6 +4,8 @@ import type { Bill } from './types';
 
 const STORAGE_KEY = 'splitkuy_bill_v1';
 
+// Shallow guard — validates all five required arrays + person id/name.
+// Nested element fields (items, discounts, etc.) are not validated here.
 export function isBill(value: unknown): value is Bill {
   if (typeof value !== 'object' || value === null) return false;
   const b = value as Record<string, unknown>;
