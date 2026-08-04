@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
-import Script from "next/script";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 
@@ -34,12 +33,12 @@ export default function RootLayout({
       className={`${plusJakartaSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
-        {/* FOUC prevention: beforeInteractive runs synchronously before hydration.
-            Next.js emits this as an inline <script> in <head>, identical markup on
-            server and client — no typeof-window branch needed. */}
-        <Script id="theme-init" strategy="beforeInteractive">
-          {THEME_SCRIPT}
-        </Script>
+        {/* FOUC prevention: run synchronously before React hydrates so there is no
+            flash of the wrong theme. Plain <script> in a Server Component <head>
+            executes via HTML parse (never as a React child), so React 19 won't warn.
+            suppressHydrationWarning silences the structural check — output is
+            identical on server and client, no typeof-window branch needed. */}
+        <script suppressHydrationWarning dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
       <body className="min-h-full flex flex-col">
         <TooltipProvider>{children}</TooltipProvider>
