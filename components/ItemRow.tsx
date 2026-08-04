@@ -3,8 +3,8 @@
 
 import { useState } from 'react';
 import { useBill } from '@/hooks/useBill';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { NumberStepper } from '@/components/ui/NumberStepper';
 import { itemSubtotal } from '@/lib/bill-calculator';
 import { formatIDR } from '@/lib/format';
@@ -154,7 +154,7 @@ export function ItemRow({ item }: { item: Item }) {
             <Button size="sm" onClick={saveEdits} disabled={saveDisabled}>
               Save
             </Button>
-            <Button size="sm" variant="danger" onClick={deleteItem}>
+            <Button size="sm" variant="destructive" onClick={deleteItem}>
               Delete
             </Button>
             <Button

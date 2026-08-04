@@ -52,5 +52,5 @@ export interface PerPersonSummary {
   taxShare: number;
   feeShare: number;
   finalOwed: number; // after all math + remainder reconciliation
-  remainderAbsorbed: number; // 0 for non-host, > 0 for host
+  remainderAbsorbed: number; // 0 for non-host; raw remainder (positive or negative) absorbed by the host to reconcile the sum
 }

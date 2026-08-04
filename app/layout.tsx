@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -18,19 +19,6 @@ export const metadata: Metadata = {
   description: "Mobile-first bill splitting for restaurant receipts",
 };
 
-// Inline script helper — prevents React from treating <script> as a component
-// during the JSX render pass. "type=text/javascript" on server so Next.js emits
-// the script; "type=text/plain" on client so React skips it (it already executed).
-function InlineScript({ html }: { html: string }) {
-  return (
-    <script
-      type={typeof window === 'undefined' ? 'text/javascript' : 'text/plain'}
-      suppressHydrationWarning
-      dangerouslySetInnerHTML={{ __html: html }}
-    />
-  );
-}
-
 const THEME_SCRIPT = `(function(){try{var t=localStorage.getItem('theme');var d=document.documentElement;if(t==='dark'||(t!=='light'&&window.matchMedia('(prefers-color-scheme:dark)').matches)){d.classList.add('dark')}else{d.classList.remove('dark')}}catch(e){}})()`;
 
 export default function RootLayout({
@@ -46,10 +34,15 @@ export default function RootLayout({
     >
       <head>
         {/* FOUC prevention: run synchronously before React hydrates so there is no
-            flash of the wrong theme.  Reads the same 'theme' key as ThemeToggle. */}
-        <InlineScript html={THEME_SCRIPT} />
+            flash of the wrong theme. Plain <script> in a Server Component <head>
+            executes via HTML parse (never as a React child), so React 19 won't warn.
+            suppressHydrationWarning silences the structural check — output is
+            identical on server and client, no typeof-window branch needed. */}
+        <script suppressHydrationWarning dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <TooltipProvider>{children}</TooltipProvider>
+      </body>
     </html>
   );
 }

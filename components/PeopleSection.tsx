@@ -3,8 +3,8 @@
 
 import { useState } from 'react';
 import { useBill } from '@/hooks/useBill';
-import { Input } from '@/components/ui/Input';
-import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 export function PeopleSection() {
   const { bill, dispatch } = useBill();
@@ -56,7 +56,7 @@ export function PeopleSection() {
             <button
               type="button"
               onClick={() => removePerson(person.id)}
-              className="inline-flex h-5 w-5 flex-shrink-0 items-center justify-center text-slate-400 hover:text-red-500"
+              className="inline-flex h-5 w-5 flex-shrink-0 items-center justify-center text-[13px] leading-none text-slate-400 hover:text-red-500"
               aria-label={`Remove ${person.name}`}
             >
               ×

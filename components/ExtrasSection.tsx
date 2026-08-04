@@ -3,9 +3,14 @@
 
 import { useState } from 'react';
 import { useBill } from '@/hooks/useBill';
-import { Accordion } from '@/components/ui/Accordion';
-import { Input } from '@/components/ui/Input';
-import { Button } from '@/components/ui/Button';
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from '@/components/ui/accordion';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { formatIDR } from '@/lib/format';
 
 function ExtraRow({
@@ -73,72 +78,76 @@ function EditableExtraCard({
   const total = items.reduce((s, i) => s + i.amount, 0);
 
   return (
-    <Accordion
-      title={
-        <span className="font-medium text-sm text-slate-900 dark:text-slate-100">
-          {title}
-        </span>
-      }
-      summary={
-        items.length > 0 ? (
-          <span className="text-sm font-semibold">{formatIDR(total)}</span>
-        ) : undefined
-      }
-    >
-      {items.length === 0 && !adding && (
-        <p className="text-xs text-slate-400 mb-2">No {title.toLowerCase()} yet</p>
-      )}
+    <Accordion type="single" collapsible className="w-full">
+      <AccordionItem
+        value={title}
+        className="rounded-[10px] border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800 overflow-hidden"
+      >
+        <AccordionTrigger className="px-3 py-2 text-left hover:no-underline">
+          <span className="flex items-center gap-2">
+            <span className="font-medium text-sm text-slate-900 dark:text-slate-100">{title}</span>
+            {items.length > 0 && (
+              <span className="text-sm font-semibold">{formatIDR(total)}</span>
+            )}
+          </span>
+        </AccordionTrigger>
+        <AccordionContent className="px-3 py-2">
+          {items.length === 0 && !adding && (
+            <p className="text-xs text-slate-400 mb-2">No {title.toLowerCase()} yet</p>
+          )}
 
-      {items.map((item) => (
-        <ExtraRow
-          key={item.id}
-          label={item.label}
-          amount={item.amount}
-          onRemove={() => onRemove(item.id)}
-          negative={negative}
-        />
-      ))}
+          {items.map((item) => (
+            <ExtraRow
+              key={item.id}
+              label={item.label}
+              amount={item.amount}
+              onRemove={() => onRemove(item.id)}
+              negative={negative}
+            />
+          ))}
 
-      {adding ? (
-        <div className="flex gap-2 items-center">
-          <Input
-            placeholder="Label"
-            value={newLabel}
-            onChange={(e) => setNewLabel(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') submit();
-              if (e.key === 'Escape') setAdding(false);
-            }}
-            className="min-w-0 flex-1 text-sm"
-          />
-          <Input
-            placeholder="Rp"
-            inputMode="numeric"
-            value={newAmount}
-            onChange={(e) => setNewAmount(e.target.value.replace(/\D/g, ''))}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') submit();
-              if (e.key === 'Escape') setAdding(false);
-            }}
-            aria-label="Amount in IDR"
-            className="w-28 flex-shrink-0 text-sm tabular-nums"
-          />
-          <Button size="sm" onClick={submit}>
-            ✓
-          </Button>
-          <Button size="sm" variant="ghost" onClick={() => setAdding(false)}>
-            ×
-          </Button>
-        </div>
-      ) : (
-        <button
-          type="button"
-          onClick={() => setAdding(true)}
-          className="text-xs text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 mt-1"
-        >
-          + add {title.toLowerCase()}
-        </button>
-      )}
+          {adding ? (
+            <div className="flex gap-2 items-center">
+              <Input
+                placeholder="Label"
+                value={newLabel}
+                onChange={(e) => setNewLabel(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') submit();
+                  if (e.key === 'Escape') setAdding(false);
+                }}
+                className="min-w-0 flex-1 text-sm"
+              />
+              <Input
+                placeholder="Rp"
+                inputMode="numeric"
+                value={newAmount}
+                onChange={(e) => setNewAmount(e.target.value.replace(/\D/g, ''))}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') submit();
+                  if (e.key === 'Escape') setAdding(false);
+                }}
+                aria-label="Amount in IDR"
+                className="w-28 flex-shrink-0 text-sm tabular-nums"
+              />
+              <Button size="sm" onClick={submit}>
+                ✓
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => setAdding(false)}>
+                ×
+              </Button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setAdding(true)}
+              className="text-xs text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 mt-1"
+            >
+              + add {title.toLowerCase()}
+            </button>
+          )}
+        </AccordionContent>
+      </AccordionItem>
     </Accordion>
   );
 }

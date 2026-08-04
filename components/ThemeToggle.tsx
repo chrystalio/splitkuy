@@ -1,7 +1,12 @@
 // components/ThemeToggle.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 type Theme = 'light' | 'dark' | 'system';
 
@@ -26,10 +31,50 @@ function getInitialTheme(): Theme {
   return 'system';
 }
 
+// Render a neutral icon on first paint (identical on server and client) so
+// React 19's element-type hydration check cannot mismatch. useSyncExternalStore
+// flips `mounted` to true after hydration (server snapshot → client snapshot),
+// and the correct theme icon appears without a setState-in-effect.
+function ThemeIcon({ theme, mounted }: { theme: Theme; mounted: boolean }) {
+  if (!mounted) {
+    return (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" />
+      </svg>
+    );
+  }
+  if (theme === 'light') {
+    return (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="4" />
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+      </svg>
+    );
+  }
+  if (theme === 'dark') {
+    return (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+      </svg>
+    );
+  }
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="2" y="3" width="20" height="14" rx="2" />
+      <path d="M8 21h8M12 17v4" />
+    </svg>
+  );
+}
+
 export function ThemeToggle() {
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
+  // false during SSR + initial hydration render, true after hydration.
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
 
-  // Apply the theme to the DOM and persist on every change.
   useEffect(() => {
     applyTheme(theme);
     localStorage.setItem(STORAGE_KEY, theme);
@@ -40,31 +85,21 @@ export function ThemeToggle() {
   const label = theme === 'light' ? 'Light mode' : theme === 'dark' ? 'Dark mode' : 'System mode';
 
   return (
-    <button
-      type="button"
-      onClick={() => setTheme(next[theme])}
-      aria-label={`Theme: ${label}. Click to switch.`}
-      title={`Theme: ${label} — click to switch`}
-      className="fixed top-3 right-3 z-50 inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 dark:focus-visible:ring-slate-100"
-    >
-      {theme === 'light' ? (
-        // Sun icon
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <circle cx="12" cy="12" r="4" />
-          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
-        </svg>
-      ) : theme === 'dark' ? (
-        // Moon icon
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-        </svg>
-      ) : (
-        // Monitor icon (system)
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <rect x="2" y="3" width="20" height="14" rx="2" />
-          <path d="M8 21h8M12 17v4" />
-        </svg>
-      )}
-    </button>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          onClick={() => setTheme(next[theme])}
+          aria-label={`Theme: ${label}. Click to switch.`}
+          suppressHydrationWarning
+          className="fixed top-3 right-3 z-50 inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 dark:focus-visible:ring-slate-100"
+        >
+          <ThemeIcon theme={theme} mounted={mounted} />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent suppressHydrationWarning>
+        <p suppressHydrationWarning>Theme: {label} — click to switch</p>
+      </TooltipContent>
+    </Tooltip>
   );
 }

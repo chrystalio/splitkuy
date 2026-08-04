@@ -1,6 +1,7 @@
 'use client';
 
-import { Button } from './Button';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 interface NumberStepperProps {
   value: number;
@@ -29,7 +30,7 @@ export function NumberStepper({
         disabled={!canDecrement}
         onClick={() => canDecrement && onChange(value - 1)}
         aria-label="Decrease"
-        className="h-7 w-7 p-0"
+        className={cn('h-11 w-11 p-0', { 'cursor-not-allowed': !canDecrement })}
       >
         −
       </Button>
@@ -43,7 +44,7 @@ export function NumberStepper({
         disabled={!canIncrement}
         onClick={() => canIncrement && onChange(value + 1)}
         aria-label="Increase"
-        className="h-7 w-7 p-0"
+        className={cn('h-11 w-11 p-0', { 'cursor-not-allowed': !canIncrement })}
       >
         +
       </Button>
