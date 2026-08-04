@@ -48,15 +48,12 @@ export function buildWhatsAppText(
   extras.push(`Subtotal ${formatIDR(subtotal)}`);
 
   if (bill.discounts.length > 0) {
-    const totalDisc = bill.discounts.reduce((s, d) => s + d.amount, 0);
-    extras.push(`Discount −${formatIDR(totalDisc)}`);
+    extras.push(`Discount −${formatIDR(totalDiscounts)}`);
   }
   if (bill.taxes.length > 0) {
-    const totalTax = bill.taxes.reduce((s, t) => s + t.amount, 0);
-    extras.push(`Tax ${formatIDR(totalTax)}`);
+    extras.push(`Tax ${formatIDR(totalTaxes)}`);
   }
   if (bill.fees.length > 0) {
-    const totalFees = bill.fees.reduce((s, f) => s + f.amount, 0);
     extras.push(`Fees ${formatIDR(totalFees)}`);
   }
 
