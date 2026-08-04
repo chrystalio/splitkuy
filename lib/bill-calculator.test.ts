@@ -124,3 +124,50 @@ describe('personFeeShare', () => {
     expect(personFeeShare('p2', fees, people)).toBe(5000);
   });
 });
+
+describe('finalOwed floor at 0', () => {
+  it('clamps a negative finalOwed to 0 for a single person', () => {
+    const bill = {
+      people: [makePerson('p1', 'Andi', true)],
+      items: [makeItem('i1', 'Nasi', 1000, 1, [{ personId: 'p1', qty: 1 }])],
+      discounts: [{ id: 'd1', label: 'Promo', amount: 5000 }], // > subtotal
+      taxes: [],
+      fees: [],
+    };
+
+    const summaries = computePerPersonSummary(bill);
+    expect(summaries[0].finalOwed).toBe(0);
+    // grandTotal is negative here, so the "sum equals grandTotal" invariant is
+    // intentionally suspended: the host absorbs the remainder, clamped at 0,
+    // and the warning banner surfaces the gap.
+    expect(summaries[0].remainderAbsorbed).toBe(-4000);
+  });
+
+  it('clamps all people when discounts exceed total subtotal', () => {
+    const bill = {
+      people: [
+        makePerson('p1', 'Andi'),
+        makePerson('p2', 'Budi', true),
+        makePerson('p3', 'Citra'),
+      ],
+      items: [
+        makeItem('i1', 'Nasi', 1000, 1, [{ personId: 'p1', qty: 1 }]),
+        makeItem('i2', 'Ayam', 1000, 1, [{ personId: 'p2', qty: 1 }]),
+        makeItem('i3', 'Teh', 1000, 1, [{ personId: 'p3', qty: 1 }]),
+      ],
+      discounts: [{ id: 'd1', label: 'Promo', amount: 5000 }], // subtotal is 3000
+      taxes: [],
+      fees: [],
+    };
+
+    const summaries = computePerPersonSummary(bill);
+    for (const sm of summaries) {
+      expect(sm.finalOwed).toBeGreaterThanOrEqual(0);
+    }
+    // Host absorbs the negative remainder, clamped at 0. The sum no longer
+    // equals grandTotal when grandTotal < 0 — the banner surfaces the gap.
+    const host = summaries.find((sm) => sm.personId === 'p2')!;
+    expect(host.finalOwed).toBe(0);
+    expect(host.remainderAbsorbed).toBe(-2000);
+  });
+});

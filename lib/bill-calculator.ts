@@ -98,7 +98,7 @@ export function computePerPersonSummary(
 
       const raw =
         itemsTotal - discountShare + taxShare + feeShare;
-      const finalOwed = Math.round(raw);
+      const finalOwed = Math.max(0, Math.round(raw));
 
       return {
         personId: person.id,
@@ -124,8 +124,11 @@ export function computePerPersonSummary(
         (s) => s.personId === target.id
       );
       if (targetSummary) {
-        targetSummary.finalOwed += remainder;
-        targetSummary.remainderAbsorbed = remainder;
+        targetSummary.finalOwed = Math.max(
+          0,
+          targetSummary.finalOwed + remainder
+        );
+        targetSummary.remainderAbsorbed = remainder < 0 ? remainder : 0;
       }
     }
   }
