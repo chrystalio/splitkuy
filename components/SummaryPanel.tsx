@@ -109,6 +109,12 @@ export function SummaryPanel() {
         </span>
       </div>
 
+      {gt < 0 && (
+        <div className="mb-3 rounded border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-300">
+          Discounts exceed subtotal — amounts clamped at Rp 0.
+        </div>
+      )}
+
       {summaries.map((summary) => {
         const person = bill.people.find((p) => p.id === summary.personId);
         if (!person) return null;
