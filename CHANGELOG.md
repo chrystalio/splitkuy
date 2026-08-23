@@ -6,7 +6,9 @@ All notable changes to SplitKuy.
 
 ### Features
 
-- **Docker support** — `Dockerfile` + `.dockerignore` for self-hosting. Multi-stage build with `oven/bun:1` builder and `node:22-alpine` runtime, non-root user, HTTP liveness probe via curl. Build: `docker build -t splitkuy .` · Run: `docker run -p 3000:3000 splitkuy`.
+- **Docker support** — `Dockerfile` + `.dockerignore` for self-hosting. Multi-stage build using `oven/bun:1-alpine` throughout (base → deps → builder → production), non-root `bunuser`, Bun-driven HTTP liveness probe. Standalone Next.js output copied into a slim runtime stage. Build: `docker build -t splitkuy .` · Run: `docker run -p 3000:3000 splitkuy`.
+- **Jenkinsfile for automated deploy** — three-stage pipeline (Checkout → Build & Push → Deploy via SSH) that builds the Docker image, pushes to Docker Hub, then SSHes into the deploy target to pull and restart the container. `HOST_PORT` and `IMAGE_NAME` parameterized via env vars.
+- **Live deployment** — app reachable at https://splitkuy.krisdev.my.id/.
 
 ### Changed
 
@@ -16,6 +18,7 @@ All notable changes to SplitKuy.
 - **Styling utilities** — added `lib/utils.ts` (`cn()` = `clsx` + `tailwind-merge`). New deps: `class-variance-authority`, `clsx`, `tailwind-merge`, `tailwindcss-animate`, `@radix-ui/react-{accordion,label,separator,tooltip,dialog,slot}`, `lucide-react`.
 - **CSS variables** — `app/globals.css` now declares shadcn HSL variables (`--background`, `--foreground`, `--primary`, etc.) for the new components. Slate palette and Plus Jakarta Sans retained.
 - `next.config.ts`: added `output: "standalone"` so the build emits a minimal `.next/standalone/` tree (only the runtime + traced deps).
+- **Theme tokens consolidated** — `--bg-app` moved into the `@theme` block as `hsl(...)` triplets (light + dark), matching the rest of the shadcn variables. Body styles now reference it via `hsl(var(--bg-app))`.
 
 ### Fixed
 
@@ -23,6 +26,9 @@ All notable changes to SplitKuy.
 - **localStorage load hardened** — `loadBill` now validates the stored shape with `isBill()` instead of trusting a `JSON.parse` cast; corrupt or partial data falls back to a fresh bill instead of throwing.
 - **Dead exports removed** — `parseNumericInput` (format) and `clearBill` (storage) deleted; both were unused.
 - **Reducer and summary text now tested** — `billReducer` extracted to `lib/bill-reducer.ts`; `buildWhatsAppText` extracted to `lib/whatsapp.ts`. Both covered by Vitest (13 reducer tests, 4 whatsapp tests, 10 storage tests, 3 format tests).
+- **Docker healthcheck broken under Bun ESM** — the original `require('http')` probe silently failed because `package.json` declares `"type": "module"` and Bun treats inline `bun -e` scripts as ESM. Rewrote as `import('http').then(...)` with a `.catch()` fallback so probe failures are surfaced instead of hanging.
+- **Dockerfile standalone CMD** — `CMD ["bun", "server.js"]` switched to `CMD ["bun", "run", "server.js"]` for proper script resolution under Bun.
+- **Jenkinsfile redundant prune removed** — `docker image prune -f` in `post.always` ran on the Jenkins executor (where it does nothing useful) while the deploy target already prunes inside its SSH block.
 
 ## [1.1.0] — 2026-08-02
 
