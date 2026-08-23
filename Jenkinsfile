@@ -6,6 +6,7 @@ pipeline {
         IMAGE_NAME = "${env.DOCKER_HUB_USER}/${APP_NAME}"
         TARGET_NODE = "${env.DEPLOY_TARGET_IP}"
         SSH_CREDS = "jenkins-deploy-ssh"
+        HOST_PORT = "3003"
     }
 
     stages {
@@ -36,7 +37,7 @@ pipeline {
                             docker rm ${APP_NAME} || true && \
                             docker run -d \
                                 --name ${APP_NAME} \
-                                -p 3000:3000 \
+                                -p ${HOST_PORT}:3000 \
                                 --restart unless-stopped \
                                 ${IMAGE_NAME}:latest && \
                             docker image prune -f
@@ -48,11 +49,8 @@ pipeline {
     }
 
     post {
-        always {
-            sh "docker image prune -f"
-        }
         success {
-            echo "Successfully deployed to http://${TARGET_NODE}:3000"
+            echo "Successfully deployed to http://${TARGET_NODE}:${HOST_PORT}"
         }
     }
 }
