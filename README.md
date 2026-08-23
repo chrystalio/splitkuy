@@ -10,6 +10,8 @@ Split the caffeine, not the headache.
 - **Summary sharing** - copy a formatted breakdown to paste anywhere
 - **Offline** - everything runs in your browser, state persists in localStorage
 
+**Live**: https://splitkuy.krisdev.my.id/
+
 ## Tech Stack
 
 Next.js 16 · React 19 · Tailwind CSS v4 · TypeScript · bun
@@ -36,6 +38,21 @@ Open [http://localhost:3000](http://localhost:3000).
 | `bun run lint` | Run ESLint |
 | `bun run test` | Run Vitest suite |
 | `bun run test:watch` | Watch mode |
+
+## Deployment
+
+### Docker
+
+```bash
+docker build -t splitkuy .
+docker run -p 3000:3000 splitkuy
+```
+
+Multi-stage build (`oven/bun:1-alpine` for base → deps → builder → production), non-root user, standalone Next.js output. Healthcheck probes `/` every 30s.
+
+### Jenkins
+
+`Jenkinsfile` automates: checkout → build & push to Docker Hub → SSH-deploy to the target node. Required env vars: `DOCKER_HUB_USER`, `DEPLOY_TARGET_IP`. Required Jenkins credentials: `docker-hub-creds`, `jenkins-deploy-ssh`.
 
 ## How It Works
 
