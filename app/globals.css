@@ -3,18 +3,6 @@
 /* Use a `.dark` class on <html> instead of OS preference, so the theme toggle works */
 @custom-variant dark (&:where(.dark, .dark *));
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --bg-app: #fafafa;
-}
-
-.dark {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-  --bg-app: #0f172a;
-}
-
 @theme inline {
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
@@ -47,6 +35,7 @@
 @layer base {
   :root {
     /* Refined neutral slate — softened to match v1.1 aesthetic (no heavy contrast) */
+    --bg-app: 0 0% 98%;
     --background: 0 0% 100%;
     --foreground: 222.2 47.4% 11.2%;
     --card: 0 0% 100%;
@@ -72,6 +61,7 @@
   }
 
   .dark {
+    --bg-app: 222.2 47.4% 6%;
     --background: 222.2 47.4% 4.9%;
     --foreground: 210 40% 98%;
     --card: 222.2 47.4% 6%;
@@ -97,7 +87,7 @@
 }
 
 body {
-  background: var(--bg-app);
-  color: var(--foreground);
+  background: hsl(var(--bg-app));
+  color: hsl(var(--foreground));
   font-family: var(--font-sans);
 }
