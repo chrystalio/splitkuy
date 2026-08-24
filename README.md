@@ -107,8 +107,8 @@ splitkuy/
 │   ├── types.ts              # TypeScript interfaces
 │   ├── utils.ts              # cn() helper (clsx + tailwind-merge)
 │   ├── utils.test.ts
-│   ├── whatsapp.ts           # Builds the shareable summary text
-│   └── whatsapp.test.ts
+│   ├── share-text.ts         # Builds the plain-text share summary
+│   └── share-text.test.ts
 ├── components.json           # shadcn/ui configuration
 └── docs/
     ├── PRD.md                # Product requirements document

@@ -17,12 +17,12 @@ import {
 } from '@/components/ui/alert-dialog';
 import { grandTotal } from '@/lib/bill-calculator';
 import { formatIDR } from '@/lib/format';
-import { buildWhatsAppText } from '@/lib/whatsapp';
+import { buildShareText } from '@/lib/share-text';
 
 export function SummaryPanel() {
   const { bill, summaries, dispatch } = useBill();
   const gt = grandTotal(bill);
-  const copyText = buildWhatsAppText(bill, summaries);
+  const copyText = buildShareText(bill, summaries);
   const hasItems = bill.items.length > 0;
   const isEmpty =
     bill.people.length === 0 &&
