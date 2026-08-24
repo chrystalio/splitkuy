@@ -64,10 +64,12 @@ export const metadata: Metadata = {
     description: SITE_DESCRIPTION,
     images: [
       {
-        url: "/opengraph-image",
+        url: "/og.png",
+        secureUrl: "https://splitkuy.krisdev.my.id/og.png",
         width: 1200,
         height: 630,
         alt: "SplitKuy — proportional bill splitting for Indonesian Rupiah",
+        type: "image/png",
       },
     ],
   },
@@ -75,7 +77,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "SplitKuy — Split bills fairly, down to the last Rupiah",
     description: SITE_DESCRIPTION,
-    images: ["/opengraph-image"],
+    images: ["https://splitkuy.krisdev.my.id/og.png"],
   },
   formatDetection: {
     telephone: false,
