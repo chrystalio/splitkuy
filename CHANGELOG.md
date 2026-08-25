@@ -4,6 +4,8 @@ All notable changes to SplitKuy.
 
 ## [Unreleased]
 
+## [1.2.0] — 2026-08-25
+
 ### Features
 
 - **Docker support** — `Dockerfile` + `.dockerignore` for self-hosting. Multi-stage build using `oven/bun:1-alpine` throughout (base → deps → builder → production), non-root `bunuser`, Bun-driven HTTP liveness probe. Standalone Next.js output copied into a slim runtime stage. Build: `docker build -t splitkuy .` · Run: `docker run -p 3000:3000 splitkuy`.
