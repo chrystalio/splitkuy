@@ -1,4 +1,5 @@
 import type { Bill, Person, Item, Discount, Tax, Fee } from './types';
+import { genId } from './utils';
 
 export function emptyBill(): Bill {
   return {
@@ -31,7 +32,7 @@ export type BillAction =
   | { type: 'RESET' };
 
 function id() {
-  return crypto.randomUUID();
+  return genId();
 }
 
 export function billReducer(state: Bill, action: BillAction): Bill {
