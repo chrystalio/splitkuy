@@ -1,5 +1,10 @@
 import { BillApp } from '@/components/BillApp';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 export default function Home() {
-  return <BillApp />;
+  return (
+    <ErrorBoundary>
+      <BillApp />
+    </ErrorBoundary>
+  );
 }
