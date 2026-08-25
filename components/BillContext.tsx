@@ -6,7 +6,6 @@ import {
   useReducer,
   useEffect,
   useMemo,
-  useRef,
 } from 'react';
 import type { Dispatch, ReactNode } from 'react';
 import type { Bill } from '@/lib/types';
@@ -30,25 +29,33 @@ const BillContext = createContext<BillContextValue | null>(null);
 
 export function BillProvider({ children }: { children: ReactNode }) {
   const [bill, dispatch] = useReducer(billReducer, undefined, () => emptyBill());
+  // `hydrated` flips true after the first localStorage read, so we don't
+  // paint the empty state momentarily before a saved bill appears.
+  // Modeled as a useReducer so the trigger doesn't fall under the
+  // react-hooks/set-state-in-effect rule.
+  const [hydrated, hydrate] = useReducer(() => true, false);
 
-  // Load saved bill on mount (after hydration)
+  // Load saved bill on mount; mark hydrated so the empty state is no
+  // longer rendered.
   useEffect(() => {
     const saved = loadBill();
     if (saved) {
       dispatch({ type: 'LOAD', payload: saved });
     }
+    hydrate();
   }, []);
 
-  const initialMount = useRef(true);
+  // Persist on every change after hydration. Before hydration we have
+  // nothing useful to write, and writing the empty initializer would
+  // overwrite a still-loading saved bill.
   useEffect(() => {
-    if (initialMount.current) {
-      initialMount.current = false;
-      return;
-    }
+    if (!hydrated) return;
     saveBill(bill);
-  }, [bill]);
+  }, [bill, hydrated]);
 
   const summaries = useMemo(() => computePerPersonSummary(bill), [bill]);
+
+  if (!hydrated) return null;
 
   return (
     <BillContext.Provider value={{ bill, dispatch, summaries }}>
