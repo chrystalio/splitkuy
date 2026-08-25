@@ -69,12 +69,15 @@ The math is always exact. If a discount or fee doesn't divide evenly across peop
 ```
 splitkuy/
 ├── app/
-│   ├── layout.tsx       # Root layout with fonts and metadata
-│   ├── page.tsx         # App entry point (renders BillApp)
-│   └── globals.css      # Tailwind v4 config and CSS variables
+│   ├── layout.tsx       # Root layout with fonts, metadata, PWA manifest link
+│   ├── page.tsx         # App entry point (renders BillApp inside ErrorBoundary)
+│   ├── globals.css      # Tailwind v4 config and CSS variables
+│   ├── robots.ts        # /robots.txt
+│   └── sitemap.ts       # /sitemap.xml
 ├── components/          # React components
 │   ├── BillApp.tsx      # Main app container
-│   ├── BillContext.tsx  # useReducer + localStorage state
+│   ├── BillContext.tsx  # useReducer + localStorage state with hydration gate
+│   ├── ErrorBoundary.tsx# Catches render-time throws, recovery UI
 │   ├── PeopleSection.tsx
 │   ├── InlineAddRow.tsx
 │   ├── ItemList.tsx
@@ -83,6 +86,9 @@ splitkuy/
 │   ├── SummaryPanel.tsx
 │   ├── CopyButton.tsx
 │   ├── ThemeToggle.tsx
+│   ├── BillContext.test.tsx
+│   ├── PeopleSection.test.tsx
+│   ├── SummaryPanel.test.tsx
 │   └── ui/              # shadcn/ui primitives (Radix + cva)
 │       ├── NumberStepper.tsx   # Touch-optimized stepper (in-house)
 │       ├── accordion.tsx
@@ -102,15 +108,43 @@ splitkuy/
 │   ├── bill-reducer.test.ts
 │   ├── format.ts             # IDR currency formatter
 │   ├── format.test.ts
-│   ├── storage.ts            # localStorage helpers
+│   ├── storage.ts            # localStorage helpers with deep validation
 │   ├── storage.test.ts
 │   ├── types.ts              # TypeScript interfaces
 │   ├── utils.ts              # cn() helper (clsx + tailwind-merge)
 │   ├── utils.test.ts
 │   ├── share-text.ts         # Builds the plain-text share summary
 │   └── share-text.test.ts
+├── test-utils/
+│   └── render-with-bill.tsx  # Renders components inside a fresh BillProvider
+├── public/
+│   ├── manifest.webmanifest  # PWA manifest
+│   ├── sw.js                 # Service worker (app-shell caching)
+│   ├── favicon.ico
+│   ├── favicon-16x16.png
+│   ├── favicon-32x32.png
+│   ├── apple-touch-icon.png
+│   ├── android-chrome-192x192.png
+│   ├── android-chrome-512x512.png
+│   └── og.png                # Open Graph image
+├── vitest.config.ts          # jsdom test environment, @/ alias, react plugin
+├── vitest.setup.ts           # jest-dom matchers + per-test cleanup
 ├── components.json           # shadcn/ui configuration
 └── docs/
     ├── PRD.md                # Product requirements document
     └── superpowers/          # Design specs and implementation plans
 ```
+
+## Testing
+
+Pure logic tests run in Vitest's jsdom environment. Run them all:
+
+```bash
+bun run test            # one-shot
+bun run test:watch      # watch mode
+```
+
+Coverage spans three layers:
+- **Math / reducer / storage** — `lib/*.test.ts`. Deep validation, proportional split math, remainder reconciliation, share-text formatting.
+- **Components** — `components/*.test.tsx` mount real React trees via `renderWithBill()` and exercise the UI flows (add/remove person, host swap, reset dialog, hydration gate).
+- **Setup** — `vitest.setup.ts` wires `@testing-library/jest-dom` matchers and clears `localStorage` between tests so state never bleeds.

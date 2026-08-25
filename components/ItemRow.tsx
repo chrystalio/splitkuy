@@ -2,6 +2,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Pencil, Trash2 } from 'lucide-react';
 import { useBill } from '@/hooks/useBill';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -82,25 +83,31 @@ export function ItemRow({ item }: { item: Item }) {
 
   return (
     <div className="mb-2 rounded-lg border border-slate-200 bg-white dark:bg-slate-900 dark:border-slate-700">
-      <button
-        type="button"
-        aria-expanded={expanded}
-        onClick={() => setExpanded(!expanded)}
-        className="flex w-full items-center justify-between px-3 py-2 text-left"
-      >
+      {/* Header row — not a button anymore. Edit affordance is the explicit
+          "Edit" button on the right so it's discoverable. */}
+      <div className="flex w-full items-center justify-between gap-2 px-3 py-2">
         <div className="min-w-0 flex-1">
           <div className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
             {item.name}
           </div>
-          <div className="text-xs text-slate-500 truncate">{assignedNames}</div>
+          <div className="text-xs text-slate-500 truncate">{assignedNames || 'No one assigned'}</div>
         </div>
-        <div className="ml-2 flex items-center gap-2">
-          <span className="text-sm font-semibold text-slate-900 dark:text-slate-100 tabular-nums">
-            {formatIDR(subtotal)}
-          </span>
-          <span className="text-slate-400">{expanded ? '▾' : '▸'}</span>
-        </div>
-      </button>
+        <span className="text-sm font-semibold text-slate-900 dark:text-slate-100 tabular-nums shrink-0">
+          {formatIDR(subtotal)}
+        </span>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => setExpanded(!expanded)}
+          aria-expanded={expanded}
+          aria-label={expanded ? `Cancel editing ${item.name}` : `Edit ${item.name}`}
+          className="shrink-0 gap-1.5 text-slate-600 dark:text-slate-300"
+        >
+          <Pencil className="size-3.5" aria-hidden="true" />
+          <span>{expanded ? 'Cancel' : 'Edit'}</span>
+        </Button>
+      </div>
 
       {expanded && (
         <div className="border-t border-slate-100 px-3 py-2 dark:border-slate-800">
@@ -108,14 +115,19 @@ export function ItemRow({ item }: { item: Item }) {
             <Input
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
+              placeholder="Item name"
               className="flex-[2] text-sm"
+              aria-label="Item name"
             />
             <Input
               value={editPrice}
               onChange={(e) =>
                 setEditPrice(e.target.value.replace(/\D/g, ''))
               }
+              placeholder="Price"
+              inputMode="numeric"
               className="flex-1 text-sm"
+              aria-label="Unit price (IDR)"
             />
           </div>
 
@@ -124,38 +136,41 @@ export function ItemRow({ item }: { item: Item }) {
             <NumberStepper value={editQty} onChange={setQty} min={1} />
           </div>
 
-          {bill.people.map((person) => {
-            const qty = editAssignments[person.id] ?? 0;
-            const allocated = Object.values(editAssignments).reduce(
-              (s, v) => s + v,
-              0
-            );
-            const canInc = allocated < editQty;
-            return (
-              <div
-                key={person.id}
-                className="mb-1 flex items-center justify-between rounded bg-slate-50 px-2 py-1 dark:bg-slate-800"
-              >
-                <span className="text-xs font-medium text-slate-900 dark:text-slate-100">
-                  {person.name}
-                </span>
-                <NumberStepper
-                  value={qty}
-                  onChange={(v) => setAssignmentQty(person.id, v)}
-                  min={0}
-                  max={editQty}
-                  disabled={qty === 0 && !canInc}
-                />
-              </div>
-            );
-          })}
+          {bill.people.length === 0 ? (
+            <p className="mb-2 text-xs text-slate-400 italic">
+              Add a person to assign this item.
+            </p>
+          ) : (
+            bill.people.map((person) => {
+              const qty = editAssignments[person.id] ?? 0;
+              const allocated = Object.values(editAssignments).reduce(
+                (s, v) => s + v,
+                0
+              );
+              const canInc = allocated < editQty;
+              return (
+                <div
+                  key={person.id}
+                  className="mb-1 flex items-center justify-between rounded bg-slate-50 px-2 py-1 dark:bg-slate-800"
+                >
+                  <span className="text-xs font-medium text-slate-900 dark:text-slate-100">
+                    {person.name}
+                  </span>
+                  <NumberStepper
+                    value={qty}
+                    onChange={(v) => setAssignmentQty(person.id, v)}
+                    min={0}
+                    max={editQty}
+                    disabled={qty === 0 && !canInc}
+                  />
+                </div>
+              );
+            })
+          )}
 
           <div className="mt-2 flex gap-2">
             <Button size="sm" onClick={saveEdits} disabled={saveDisabled}>
               Save
-            </Button>
-            <Button size="sm" variant="destructive" onClick={deleteItem}>
-              Delete
             </Button>
             <Button
               size="sm"
@@ -163,6 +178,16 @@ export function ItemRow({ item }: { item: Item }) {
               onClick={() => setExpanded(false)}
             >
               Cancel
+            </Button>
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={deleteItem}
+              className="ml-auto gap-1.5"
+              aria-label={`Delete ${item.name}`}
+            >
+              <Trash2 className="size-3.5" aria-hidden="true" />
+              <span>Delete</span>
             </Button>
           </div>
         </div>
