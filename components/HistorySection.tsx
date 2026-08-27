@@ -26,16 +26,16 @@ import {
 } from '@/components/ui/alert-dialog';
 
 export function HistorySection() {
-  const { bill, dispatch } = useBill();
+  const { bill, dispatch, historyVersion } = useBill();
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [clearOpen, setClearOpen] = useState(false);
   const [loadConfirm, setLoadConfirm] = useState<HistoryEntry | null>(null);
 
-  // Load history on mount
+  // Load history on mount and when a new entry is saved
   useEffect(() => {
     setHistory(loadHistory());
-  }, []);
+  }, [historyVersion]);
 
   // Refresh after mutations
   function refresh() {

@@ -6,6 +6,7 @@ import {
   useReducer,
   useEffect,
   useMemo,
+  useState,
 } from 'react';
 import type { Dispatch, ReactNode } from 'react';
 import type { Bill } from '@/lib/types';
@@ -26,6 +27,7 @@ interface BillContextValue {
   dispatch: Dispatch<BillAction>;
   summaries: ReturnType<typeof computePerPersonSummary>;
   saveToHistory: (label: string) => void;
+  historyVersion: number;
 }
 
 const BillContext = createContext<BillContextValue | null>(null);
@@ -57,6 +59,7 @@ export function BillProvider({ children }: { children: ReactNode }) {
   }, [bill, hydrated]);
 
   const summaries = useMemo(() => computePerPersonSummary(bill), [bill]);
+  const [historyVersion, setHistoryVersion] = useState(0);
 
   const saveToHistory = (label: string) => {
     saveHistoryEntry({
@@ -67,12 +70,13 @@ export function BillProvider({ children }: { children: ReactNode }) {
       summaries: JSON.parse(JSON.stringify(summaries)),
       grandTotal: grandTotal(bill),
     });
+    setHistoryVersion((v) => v + 1);
   };
 
   if (!hydrated) return null;
 
   return (
-    <BillContext.Provider value={{ bill, dispatch, summaries, saveToHistory }}>
+    <BillContext.Provider value={{ bill, dispatch, summaries, saveToHistory, historyVersion }}>
       {children}
     </BillContext.Provider>
   );
