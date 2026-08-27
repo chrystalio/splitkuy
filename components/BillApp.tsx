@@ -5,6 +5,7 @@ import { PeopleSection } from './PeopleSection';
 import { ExtrasSection } from './ExtrasSection';
 import { ItemList } from './ItemList';
 import { SummaryPanel } from './SummaryPanel';
+import { HistorySection } from './HistorySection';
 import { ThemeToggle } from './ThemeToggle';
 
 export function BillApp() {
@@ -28,6 +29,7 @@ export function BillApp() {
         <ExtrasSection />
         <ItemList />
         <SummaryPanel />
+        <HistorySection />
       </main>
       <footer className="mx-auto max-w-lg px-5 py-6 text-center">
         <p className="text-xs text-slate-400 dark:text-slate-500">
