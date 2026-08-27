@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { useBill } from '@/hooks/useBill';
 import { CopyButton } from '@/components/CopyButton';
+import { SaveBillDialog } from '@/components/SaveBillDialog';
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
@@ -20,7 +21,7 @@ import { formatIDR } from '@/lib/format';
 import { buildShareText } from '@/lib/share-text';
 
 export function SummaryPanel() {
-  const { bill, summaries, dispatch } = useBill();
+  const { bill, summaries, dispatch, saveToHistory } = useBill();
   const gt = grandTotal(bill);
   const copyText = buildShareText(bill, summaries);
   const hasItems = bill.items.length > 0;
@@ -31,6 +32,7 @@ export function SummaryPanel() {
     bill.taxes.length === 0 &&
     bill.fees.length === 0;
   const [resetOpen, setResetOpen] = useState(false);
+  const [saveOpen, setSaveOpen] = useState(false);
 
   function handleReset() {
     if (isEmpty) return;
@@ -118,6 +120,20 @@ export function SummaryPanel() {
         text={copyText}
         label="Copy summary"
         disabled={!hasItems}
+      />
+      <Button
+        type="button"
+        onClick={() => setSaveOpen(true)}
+        disabled={!hasItems}
+        variant="secondary"
+        className="mt-2 w-full"
+      >
+        Save to history
+      </Button>
+      <SaveBillDialog
+        open={saveOpen}
+        onOpenChange={setSaveOpen}
+        onSave={saveToHistory}
       />
       <Button
         type="button"

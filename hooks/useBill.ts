@@ -1,6 +1,6 @@
 import { useBillContext } from '@/components/BillContext';
 
 export function useBill() {
-  const { bill, dispatch, summaries } = useBillContext();
-  return { bill, dispatch, summaries };
+  const { bill, dispatch, summaries, saveToHistory } = useBillContext();
+  return { bill, dispatch, summaries, saveToHistory };
 }
