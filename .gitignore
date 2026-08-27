@@ -43,3 +43,7 @@ next-env.d.ts
 # brainstorm / visual companion
 .superpowers/
 
+
+# Dev container (not pushed)
+Dockerfile.dev
+docker-compose.dev.yml
