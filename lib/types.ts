@@ -54,3 +54,12 @@ export interface PerPersonSummary {
   finalOwed: number; // after all math + remainder reconciliation
   remainderAbsorbed: number; // 0 for non-host; raw remainder (positive or negative) absorbed by the host to reconcile the sum
 }
+
+export interface HistoryEntry {
+  id: string;              // crypto.randomUUID()
+  savedAt: string;         // ISO 8601 timestamp
+  billLabel: string;       // user-provided label (e.g. "Lunch at Warung Padang")
+  bill: Bill;              // snapshot of the full bill at save time
+  summaries: PerPersonSummary[];  // pre-computed per-person breakdown
+  grandTotal: number;      // pre-computed total
+}

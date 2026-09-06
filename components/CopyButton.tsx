@@ -16,7 +16,28 @@ export function CopyButton({ text, label = 'Copy', disabled }: CopyButtonProps) 
 
   async function handleCopy() {
     try {
-      await navigator.clipboard.writeText(text);
+      // Try modern Clipboard API first (requires HTTPS or localhost)
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        setCopied(true);
+        setFailed(false);
+        setTimeout(() => setCopied(false), 2000);
+        return;
+      }
+    } catch {
+      // Fall through to legacy method
+    }
+
+    // Fallback: textarea + execCommand (works on HTTP)
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
       setCopied(true);
       setFailed(false);
       setTimeout(() => setCopied(false), 2000);
