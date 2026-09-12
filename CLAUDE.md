@@ -21,6 +21,7 @@ bun start    # Start production server
 bun lint     # Run ESLint
 bunx tsc --noEmit   # TypeScript typecheck (noEmit is set in tsconfig)
 bun run test  # Run Vitest suite (note: `bun test` invokes bun's native runner, NOT vitest — use `bun run test`)
+bun run test:watch # Run Vitest in watch mode
 ```
 
 Note: Project uses **bun** as package manager (bun.lock present).
@@ -49,6 +50,8 @@ components/               # React components (use 'use client' where needed)
   ItemList.tsx / ItemRow.tsx   # Item management
   PeopleSection.tsx       # Participant management
   SummaryPanel.tsx        # Per-person breakdown
+  HistorySection.tsx      # Saved bills list
+  HistoryDetail.tsx       # View a specific saved bill
   ErrorBoundary.tsx       # Error catching (also in app/)
 hooks/
   useBill.ts              # Consumer hook for BillContext
