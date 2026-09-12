@@ -1,6 +1,8 @@
 // lib/bill-calculator.test.ts
 import { describe, it, expect } from 'vitest';
 import {
+  isEqualSplit,
+  personItemsTotal,
   itemSubtotal,
   personFeeShare,
   personDiscountShare,
@@ -193,5 +195,86 @@ describe('finalOwed floor at 0', () => {
     const summaries = computePerPersonSummary(bill);
     const sumFinalOwed = summaries.reduce((s, sm) => s + sm.finalOwed, 0);
     expect(sumFinalOwed).toBe(grandTotal(bill));
+  });
+});
+
+describe('equal-split items', () => {
+  it('single assignee behaves like a normal qty-1 item', () => {
+    const item = makeItem('i1', 'Cake', 100, 1, [{ personId: 'p1', qty: 1 }]);
+    expect(personItemsTotal('p1', [item])).toBe(100);
+  });
+
+  it('three assignees each pay one-third of the unit price', () => {
+    const item = makeItem(
+      'i1',
+      'Cake',
+      100,
+      1,
+      [
+        { personId: 'p1', qty: 1 },
+        { personId: 'p2', qty: 1 },
+        { personId: 'p3', qty: 1 },
+      ],
+    );
+    expect(personItemsTotal('p1', [item])).toBe(33);
+    expect(personItemsTotal('p2', [item])).toBe(33);
+    expect(personItemsTotal('p3', [item])).toBe(33);
+  });
+
+  it('host absorbs the rounding remainder for non-divisible unit prices', () => {
+    const bill = {
+      people: [
+        makePerson('p1', 'Nala'),
+        makePerson('p2', 'Sena'),
+        makePerson('p3', 'Jack', true),
+      ],
+      items: [
+        makeItem('i1', 'Cake', 100, 1, [
+          { personId: 'p1', qty: 1 },
+          { personId: 'p2', qty: 1 },
+          { personId: 'p3', qty: 1 },
+        ]),
+      ],
+      discounts: [],
+      taxes: [],
+      fees: [],
+    };
+
+    const summaries = computePerPersonSummary(bill);
+    const sumFinalOwed = summaries.reduce((s, sm) => s + sm.finalOwed, 0);
+    expect(sumFinalOwed).toBe(grandTotal(bill)); // must balance to 100
+    const host = summaries.find((s) => s.personId === 'p3')!;
+    expect(host.remainderAbsorbed).toBe(1); // the extra Rupiah after rounding
+  });
+
+  it('multi-quantity items still use proportional qty split', () => {
+    // quantity=2 with 3 assignees = NOT equal-split. Each assignee gets
+    // qty=1 * unitPrice = 100. Sum across assignees = 300 (two units).
+    const item = makeItem('i1', 'Pizza', 100, 2, [
+      { personId: 'p1', qty: 1 },
+      { personId: 'p2', qty: 1 },
+      { personId: 'p3', qty: 1 },
+    ]);
+    expect(personItemsTotal('p1', [item])).toBe(100);
+    expect(personItemsTotal('p2', [item])).toBe(100);
+    // p3 is not in the assignment list, gets 0
+    expect(personItemsTotal('p3', [item])).toBe(0);
+  });
+
+  it('isEqualSplit helper classifies correctly', () => {
+    const equalSplit = makeItem('i1', 'Cake', 100, 1, [
+      { personId: 'p1', qty: 1 },
+      { personId: 'p2', qty: 1 },
+    ]);
+    const singleAssignee = makeItem('i2', 'Drink', 100, 1, [
+      { personId: 'p1', qty: 1 },
+    ]);
+    const multiQty = makeItem('i3', 'Pizza', 100, 2, [
+      { personId: 'p1', qty: 1 },
+      { personId: 'p2', qty: 1 },
+    ]);
+    expect(isEqualSplit(equalSplit)).toBe(true);
+    expect(isEqualSplit(singleAssignee)).toBe(false);
+    expect(isEqualSplit(multiQty)).toBe(false);
   });
 });
