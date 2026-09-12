@@ -2,6 +2,10 @@
 
 import type { Bill, Item, PerPersonSummary } from './types';
 
+export function isEqualSplit(item: Item): boolean {
+  return item.quantity === 1 && item.assignments.length > 1;
+}
+
 export function itemSubtotal(item: Item): number {
   return item.assignments.reduce(
     (sum, a) => sum + a.qty * item.unitPrice,
