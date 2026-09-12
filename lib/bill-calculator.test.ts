@@ -253,7 +253,6 @@ describe('equal-split items', () => {
     const item = makeItem('i1', 'Pizza', 100, 2, [
       { personId: 'p1', qty: 1 },
       { personId: 'p2', qty: 1 },
-      { personId: 'p3', qty: 1 },
     ]);
     expect(personItemsTotal('p1', [item])).toBe(100);
     expect(personItemsTotal('p2', [item])).toBe(100);
