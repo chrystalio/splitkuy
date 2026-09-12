@@ -4,6 +4,14 @@ All notable changes to SplitKuy.
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-09-12
+
+### Features
+- **Equal-split item assignment** — when an item has `quantity: 1`, it can now be assigned to multiple people, with the total price split equally among them. 
+- **UI enhancements for equal-split** — `ItemRow` and `InlineAddRow` now allow multi-person assignment for single-unit items and display a "Shared by..." summary in the collapsed view.
+
+### Fixed
+- **Storage validation bug** — `isItem` now correctly validates equal-split items, preventing the app from resetting the bill when multiple people are assigned to a single-unit item.
 ## [1.2.0] — 2026-08-25
 
 ### Features

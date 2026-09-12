@@ -37,11 +37,45 @@ Tests use **Vitest** (added 2026-08-02). Test files are co-located as `*.test.ts
 ## Architecture
 
 ```
-app/
-  layout.tsx    # Root layout with Geist fonts, metadata
-  page.tsx      # Home page (currently default Next.js starter)
-  globals.css   # Tailwind imports + CSS variables for theming
+app/                      # App Router pages
+  layout.tsx              # Root layout (fonts, metadata, ErrorBoundary)
+  page.tsx                # Home page
+  globals.css             # Tailwind v4 imports + CSS variables (dark mode)
+components/               # React components (use 'use client' where needed)
+  ui/                     # shadcn/ui primitives (button, input, dialog, etc.)
+  BillApp.tsx             # Main app shell
+  BillContext.tsx         # Bill state provider
+  ExtrasSection.tsx       # Tax/discount/fee inputs
+  ItemList.tsx / ItemRow.tsx   # Item management
+  PeopleSection.tsx       # Participant management
+  SummaryPanel.tsx        # Per-person breakdown
+  ErrorBoundary.tsx       # Error catching (also in app/)
+hooks/
+  useBill.ts              # Consumer hook for BillContext
+lib/
+  bill-calculator.ts      # Core math: proportional split, remainder to Host
+  bill-reducer.ts         # Immutable state transitions
+  types.ts                # TypeScript interfaces
+  storage.ts              # localStorage persistence
+  format.ts               # IDR number formatting
+  share-text.ts          # WhatsApp/telegram share generation
+  utils.ts                # General helpers
+test-utils/               # Shared test utilities and mocks
+public/
+  sw.js                   # Service worker (PWA offline support)
+  manifest.webmanifest    # PWA manifest
 ```
+
+### Key Directories
+
+| Directory | Purpose |
+|----------|---------|
+| `components/` | All UI components |
+| `components/ui/` | shadcn/ui base components |
+| `lib/` | Pure logic, no React dependencies |
+| `hooks/` | React context consumers |
+| `test-utils/` | Vitest helpers (render-with-bill, mocks) |
+| `docs/` | PRD and design docs |
 
 ### Design Principles
 
@@ -55,8 +89,9 @@ app/
 | File | Purpose |
 |------|---------|
 | `docs/PRD.md` | Complete product requirements (currency, math logic, user flow) |
-| `AGENTS.md` | Agent/instruction hooks for development |
-| `app/layout.tsx` | Root layout with font setup and metadata |
+| `AGENTS.md` | Agent/instruction hooks (Next.js 16 breaking changes) |
+| `lib/bill-calculator.ts` | Core proportional-split math |
+| `lib/types.ts` | Core TypeScript types (`Person`, `Item`, `BillState`) |
 
 ### Mathematical Logic (from PRD)
 
@@ -70,6 +105,19 @@ app/
 - App Router uses React canary features (Server Components by default)
 - For interactive components needing client state, add `'use client'` directive
 - Dark mode supported via CSS variables in `globals.css`
+- **PWA**: Hardened for mobile with `manifest.webmanifest` and `sw.js` for basic offline support.
+
+## Gotchas & Quirks
+
+- **IDR Precision**: Always use whole numbers (integers). Never use floating point for Rupiahs.
+- **The "Stray Rupiah"**: Due to proportional splitting, totals may not sum perfectly. Always assign the remainder to the **Host** to maintain a perfect balance.
+- **Next.js 16**: Heavily diverges from training data. Refer to `node_modules/next/dist/docs/` for any API questions.
+- **Vitest**: Use `bun run test`, not `bun test`, to ensure the Vitest suite is executed.
+
+**Code enforcing gotchas:**
+- **IDR whole numbers**: All arithmetic uses integers — `item.unitPrice` is `number` but treated as IDR; `Math.round()` at `computePerPersonSummary:101` floors all per-person values.
+- **Remainder to Host**: `computePerPersonSummary:115–134` — sums `finalOwed`, computes `remainder`, then adds it to `host.finalOwed` and sets `remainderAbsorbed`. See `bill-calculator.test.ts` → "stray rupiah" / "remainder absorbed" test cases.
+- **Flat fees even split**: `personFeeShare:59` uses `Math.round(totalFees / people.length)` — rounds per person rather than proportionally.
 
 ---
 

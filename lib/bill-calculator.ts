@@ -2,7 +2,15 @@
 
 import type { Bill, Item, PerPersonSummary } from './types';
 
+export function isEqualSplit(item: Item): boolean {
+  return item.quantity === 1 && item.assignments.length > 1;
+}
+
 export function itemSubtotal(item: Item): number {
+  if (isEqualSplit(item)) {
+    // Single unit shared equally — total cost is just the one unit price.
+    return item.unitPrice;
+  }
   return item.assignments.reduce(
     (sum, a) => sum + a.qty * item.unitPrice,
     0
@@ -15,6 +23,10 @@ export function billSubtotal(items: Item[]): number {
 
 export function personItemsTotal(personId: string, items: Item[]): number {
   return items.reduce((sum, item) => {
+    if (isEqualSplit(item)) {
+      // Single unit shared equally among assignees — distribute unitPrice evenly.
+      return sum + Math.round(item.unitPrice / item.assignments.length);
+    }
     const assignment = item.assignments.find((a) => a.personId === personId);
     return sum + (assignment ? assignment.qty * item.unitPrice : 0);
   }, 0);

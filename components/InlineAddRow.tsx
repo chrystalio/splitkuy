@@ -30,11 +30,14 @@ export function InlineAddRow() {
   }
 
   function setQty(personId: string, qty: number) {
-    // cap at remaining unallocated units
-    const allocated = Object.values(assignments).reduce((s, v) => s + v, 0);
-    const current = assignments[personId] ?? 0;
-    const delta = qty - current;
-    if (allocated + delta > quantity) return; // would exceed cap
+    const isEqualSplit = quantity === 1;
+    if (!isEqualSplit) {
+      // cap at remaining unallocated units
+      const allocated = Object.values(assignments).reduce((s, v) => s + v, 0);
+      const current = assignments[personId] ?? 0;
+      const delta = qty - current;
+      if (allocated + delta > quantity) return; // would exceed cap
+    }
 
     if (qty === 0) {
       const next = { ...assignments };
@@ -52,7 +55,9 @@ export function InlineAddRow() {
     .filter(([personId, qty]) => qty > 0 && liveIds.has(personId))
     .reduce((s, [, qty]) => s + qty, 0);
   const canAdd =
-    name.trim() && validPrice && liveAllocated >= 1 && liveAllocated <= quantity;
+    name.trim() &&
+    validPrice &&
+    (quantity === 1 ? liveAllocated >= 1 : liveAllocated >= 1 && liveAllocated <= quantity);
 
   function addItem() {
     if (!canAdd) return;
@@ -120,14 +125,13 @@ export function InlineAddRow() {
           {bill.people.length > 0 && (
             <div className="mb-3">
               <div className="mb-1 text-xs text-slate-500 uppercase tracking-wide">
-                Who? (sum ≤ {quantity})
+                Who?{quantity === 1 ? ' (assign to many)' : ` (sum ≤ ${quantity})`}
               </div>
               <div className="space-y-1">
                 {bill.people.map((person) => {
                   const qty = assignments[person.id] ?? 0;
-                  const canIncrement =
-                    Object.values(assignments).reduce((s, v) => s + v, 0) <
-                    quantity;
+                  const isEqualSplit = quantity === 1;
+                  const canIncrement = isEqualSplit || liveAllocated < quantity;
                   return (
                     <div
                       key={person.id}
@@ -148,7 +152,11 @@ export function InlineAddRow() {
                 })}
               </div>
               <div className="mt-1 text-xs text-slate-400">
-                Allocated: {liveAllocated} / {quantity} units
+                {quantity === 1 ? (
+                  <span>Split equally across all assignees</span>
+                ) : (
+                  <span>Allocated: {liveAllocated} / {quantity} units</span>
+                )}
               </div>
             </div>
           )}

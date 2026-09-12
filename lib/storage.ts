@@ -55,11 +55,15 @@ function isItem(v: unknown): v is Item {
   if (!Array.isArray(i.assignments)) return false;
   if (!i.assignments.every(isItemAssignment)) return false;
   // Quantity invariant: sum of assigned qty must not exceed line qty.
-  const assigned = (i.assignments as ItemAssignment[]).reduce(
-    (s, a) => s + a.qty,
-    0
-  );
-  if (assigned > i.quantity) return false;
+  // Equal-split items (qty=1, multiple assignees) bypass this check.
+  const isEqualSplit = i.quantity === 1 && i.assignments.length > 1;
+  if (!isEqualSplit) {
+    const assigned = (i.assignments as ItemAssignment[]).reduce(
+      (s, a) => s + a.qty,
+      0
+    );
+    if (assigned > i.quantity) return false;
+  }
   return true;
 }
 

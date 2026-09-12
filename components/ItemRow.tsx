@@ -7,7 +7,7 @@ import { useBill } from '@/hooks/useBill';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { NumberStepper } from '@/components/ui/NumberStepper';
-import { itemSubtotal } from '@/lib/bill-calculator';
+import { itemSubtotal, isEqualSplit } from '@/lib/bill-calculator';
 import { formatIDR } from '@/lib/format';
 import type { Item } from '@/lib/types';
 
@@ -62,10 +62,13 @@ export function ItemRow({ item }: { item: Item }) {
   }
 
   function setAssignmentQty(personId: string, qty: number) {
-    const allocated = Object.values(editAssignments).reduce((s, v) => s + v, 0);
-    const current = editAssignments[personId] ?? 0;
-    const delta = qty - current;
-    if (allocated + delta > editQty) return;
+    const isEqualSplit = editQty === 1;
+    if (!isEqualSplit) {
+      const allocated = Object.values(editAssignments).reduce((s, v) => s + v, 0);
+      const current = editAssignments[personId] ?? 0;
+      const delta = qty - current;
+      if (allocated + delta > editQty) return;
+    }
 
     const next = { ...editAssignments };
     if (qty === 0) delete next[personId];
@@ -73,13 +76,23 @@ export function ItemRow({ item }: { item: Item }) {
     setEditAssignments(next);
   }
 
-  const assignedNames = item.assignments
-    .map((a) => {
-      const person = bill.people.find((p) => p.id === a.personId);
+  function formatAssignments(item: Item, people: typeof bill.people) {
+  if (isEqualSplit(item)) {
+    const names = item.assignments
+      .map(a => people.find(p => p.id === a.personId)?.name)
+      .filter(Boolean)
+      .join(', ');
+    return `Shared by ${names}`;
+  }
+  return item.assignments
+    .map(a => {
+      const person = people.find(p => p.id === a.personId);
       return person ? `${person.name} ×${a.qty}` : null;
     })
     .filter(Boolean)
     .join(' · ');
+}
+
 
   return (
     <div className="mb-2 rounded-lg border border-slate-200 bg-white dark:bg-slate-900 dark:border-slate-700">
@@ -90,7 +103,7 @@ export function ItemRow({ item }: { item: Item }) {
           <div className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
             {item.name}
           </div>
-          <div className="text-xs text-slate-500 truncate">{assignedNames || 'No one assigned'}</div>
+          <div className="text-xs text-slate-500 truncate">{formatAssignments(item, bill.people)}</div>
         </div>
         <span className="text-sm font-semibold text-slate-900 dark:text-slate-100 tabular-nums shrink-0">
           {formatIDR(subtotal)}
@@ -143,11 +156,8 @@ export function ItemRow({ item }: { item: Item }) {
           ) : (
             bill.people.map((person) => {
               const qty = editAssignments[person.id] ?? 0;
-              const allocated = Object.values(editAssignments).reduce(
-                (s, v) => s + v,
-                0
-              );
-              const canInc = allocated < editQty;
+              const equalSplitMode = editQty === 1;
+              const canInc = equalSplitMode || qty < editQty;
               return (
                 <div
                   key={person.id}
