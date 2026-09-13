@@ -109,7 +109,7 @@ function EditableExtraCard({
           {adding ? (
             <div className="flex gap-2 items-center">
               <Input
-                placeholder="Label"
+                placeholder={title}
                 value={newLabel}
                 onChange={(e) => setNewLabel(e.target.value)}
                 onKeyDown={(e) => {
@@ -138,13 +138,18 @@ function EditableExtraCard({
               </Button>
             </div>
           ) : (
-            <button
+            <Button
               type="button"
-              onClick={() => setAdding(true)}
-              className="text-xs text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 mt-1"
+              size="xs"
+              variant="ghost"
+              className="text-xs mt-1"
+              onClick={() => {
+                setNewLabel(`${title} ${items.length + 1}`);
+                setAdding(true);
+              }}
             >
               + add {title.toLowerCase()}
-            </button>
+            </Button>
           )}
         </AccordionContent>
       </AccordionItem>
