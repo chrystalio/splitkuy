@@ -4,6 +4,13 @@ All notable changes to SplitKuy.
 
 ## [Unreleased]
 
+## [1.2.2] - 2026-09-13
+
+### Features
+- **Pre-filled labels for extras** — when adding a new discount, tax, or fee, the label field is now auto-populated with the next sequential name (e.g., "Discount 1", "Tax 2"). Users can edit or keep the suggested name for faster data entry.
+
+
+
 ## [1.2.1] - 2026-09-12
 
 ### Features
